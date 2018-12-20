@@ -1,0 +1,47 @@
+{
+  "name": "remote-data-ts",
+  "description": "Remote data type implemented in TS",
+  "version": "1.0.0",
+  "main": "./dist/cmjs/index.js",
+  "module": "./dist/cmjs/index.js",
+  "es2015": "./dist/es2015/index.js",
+  "unpkg": "./dist/umd/index.js",
+  "typings": "./index.d.ts",
+  "sideEffects": false,
+  "repository": {
+    "type": "git",
+    "url": "https://www.github.com/gillchristian/remote-data-ts"
+  },
+  "author": "Christian Gill <gillchristiang@gmail.com>",
+  "license": "MIT",
+  "keywords": [
+    "typescript",
+    "remote-data",
+    "fetch",
+    "types"
+  ],
+  "scripts": {
+    "watch": "tsc -w --noEmit -p .",
+    "build": "yarn build:es2015 && yarn build:umd && yarn build:cmjs",
+    "build:es2015": "tsc --module es2015 --outDir dist/es2015",
+    "build:umd": "tsc --module umd --outDir dist/umd",
+    "build:cmjs": "tsc --module commonjs --outDir dist/cmjs",
+    "test": "jest --coverage",
+    "test:watch": "jest --watch",
+    "format": "prettier  --write '**/*.{ts,json,md}'",
+    "format:changed": "pretty-quick",
+    "precommit": "pretty-quick --staged",
+    "prerelease": "yarn build",
+    "release": "np"
+  },
+  "devDependencies": {
+    "@types/jest": "^23.3.5",
+    "husky": "^1.1.1",
+    "jest": "^23.6.0",
+    "np": "^3.0.4",
+    "prettier": "^1.14.3",
+    "pretty-quick": "^1.7.0",
+    "ts-jest": "^23.10.4",
+    "typescript": "^3.1.1"
+  }
+}
