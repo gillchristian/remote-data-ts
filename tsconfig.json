@@ -4,7 +4,6 @@
     "module": "commonjs",
     "lib": ["es6"],
     "rootDir": "src",
-    "declarationDir": "./",
     "sourceMap": false,
     "declaration": true,
     "strict": true,
@@ -23,6 +22,5 @@
     "noErrorTruncation": true,
     "esModuleInterop": true
   },
-  "include": ["src/*.ts", "!src/*.spec.ts"],
-  "exclude": ["node_modules", "dist", "index.d.ts", "src/index.spec.ts"]
+  "exclude": ["node_modules", "dist", "index.d.ts", "src/index.test.ts"]
 }

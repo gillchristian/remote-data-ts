@@ -6,7 +6,6 @@
   "module": "./dist/cmjs/index.js",
   "es2015": "./dist/es2015/index.js",
   "unpkg": "./dist/umd/index.js",
-  "typings": "./index.d.ts",
   "sideEffects": false,
   "repository": {
     "type": "git",
