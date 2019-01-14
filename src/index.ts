@@ -13,10 +13,10 @@ interface Failure<E> {
   readonly error: E;
 }
 interface NotAsked {
-  _type: Types.notAsked;
+  readonly _type: Types.notAsked;
 }
 interface Loading {
-  _type: Types.loading;
+  readonly _type: Types.loading;
 }
 
 export type RemoteData<D, E> = NotAsked | Loading | ResolvedData<D, E>;
@@ -40,8 +40,9 @@ export const isSuccess = (rd: RemoteData<any, any>): rd is Success<any> =>
 export const isFailure = (rd: RemoteData<any, any>): rd is Failure<any> =>
   rd._type === Types.failure;
 
-export const isLoaded = (rd: RemoteData<any, any>) =>
-  isSuccess(rd) || isFailure(rd);
+export const isLoaded = (
+  rd: RemoteData<any, any>,
+): rd is ResolvedData<any, any> => isSuccess(rd) || isFailure(rd);
 
 interface Catafn<D, E, R> {
   notAsked: () => R;
@@ -64,6 +65,7 @@ export const cata = <D, E, R = void>(m: Catafn<D, E, R>) => (
   return m.success(rd.data);
 };
 
+// map :: (a -> b) -> RemoteData E a -> RemoteData E b
 type Mapfn<D, R> = (d: D) => R;
 export const map = <D, E, R>(fn: Mapfn<D, R>) =>
   cata<D, E, RemoteData<R, E>>({
@@ -73,6 +75,7 @@ export const map = <D, E, R>(fn: Mapfn<D, R>) =>
     success: (data) => RemoteData.success(fn(data)),
   });
 
+// chain :: (a -> RemoteData E b) -> RemoteData E a -> RemoteData E b
 type Chainfn<D, E, R> = (d: D) => RemoteData<R, E>;
 export const chain = <D, E, R>(fn: Chainfn<D, E, R>) =>
   cata<D, E, RemoteData<R, E>>({
@@ -82,6 +85,7 @@ export const chain = <D, E, R>(fn: Chainfn<D, E, R>) =>
     success: (data) => fn(data),
   });
 
+// chain :: (b -> a -> b) -> b -> RemoteData E a -> b
 type Foldfn<D, R> = (acc: R, d: D) => R;
 export const fold = <D, E, R>(fn: Foldfn<D, R>) => (def: R) =>
   cata<D, E, R>({
