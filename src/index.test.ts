@@ -1,5 +1,9 @@
 import { RemoteData, cata, map, fold, chain, isLoaded } from './';
 
+const identity = <A>(a: A) => a;
+const compose = <A, B, C>(f: (b: B) => C, g: (a: A) => B) => (x: A): C =>
+  f(g(x));
+
 describe('remote-data-ts', () => {
   describe('cata', () => {
     it('transforms the remote data according to the corresponding type', () => {
@@ -17,20 +21,49 @@ describe('remote-data-ts', () => {
     });
   });
 
-  describe('map', () => {
-    it('maps only the success case', () => {
-      const toSuccessStr = map(() => 'success');
+  // Functor laws (http://hackage.haskell.org/package/base-4.12.0.0/docs/Data-Functor.html)
+  describe('functor', () => {
+    // fmap id  ==  id
+    it('identity morphism', () => {
+      const mapID = map(identity);
 
-      const notAsked = RemoteData.notAsked();
-      const loading = RemoteData.loading();
-      const success = RemoteData.success('foo');
-      const failure = RemoteData.failure('bar');
+      const s = RemoteData.success('foo');
+      const f = RemoteData.failure(new Error('bar'));
+      const n = RemoteData.notAsked();
+      const l = RemoteData.loading();
 
-      expect(toSuccessStr(notAsked)).toEqual(notAsked);
-      expect(toSuccessStr(loading)).toEqual(loading);
-      expect(toSuccessStr(failure)).toEqual(failure);
+      expect(mapID(s)).toEqual(s);
+      expect(mapID(f)).toEqual(f);
+      expect(mapID(n)).toEqual(n);
+      expect(mapID(l)).toEqual(l);
+    });
 
-      expect(toSuccessStr(success)).toEqual(RemoteData.success('success'));
+    // fmap (f . g)  ==  fmap f . fmap g
+    it('composition of morphisms', () => {
+      const toUpper = (a: string) => a.toUpperCase();
+      const chars = (a: string) => a.split('');
+
+      const upperChars = compose(
+        chars,
+        toUpper,
+      );
+
+      const mapUpper = map(toUpper);
+      const mapChars = map(chars);
+      const mapUpperChars = compose(
+        mapChars,
+        mapUpper,
+      );
+
+      const s = RemoteData.success('foo');
+      const f = RemoteData.failure(new Error('bar'));
+      const n = RemoteData.notAsked();
+      const l = RemoteData.loading();
+
+      expect(map(upperChars)(s)).toEqual(mapUpperChars(s));
+      expect(map(upperChars)(f)).toEqual(mapUpperChars(f));
+      expect(map(upperChars)(n)).toEqual(mapUpperChars(n));
+      expect(map(upperChars)(l)).toEqual(mapUpperChars(l));
     });
   });
 
