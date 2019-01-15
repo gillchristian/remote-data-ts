@@ -7,6 +7,7 @@
   "es2015": "./dist/es2015/index.js",
   "unpkg": "./dist/umd/index.js",
   "sideEffects": false,
+  "types": "index.d.ts",
   "repository": {
     "type": "git",
     "url": "https://www.github.com/gillchristian/remote-data-ts"
