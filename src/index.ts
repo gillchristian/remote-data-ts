@@ -25,6 +25,7 @@ export type RemoteData<D, E> = NotAsked | Loading | ResolvedData<D, E>;
 export type ResolvedData<D, E> = Failure<E> | Success<D>;
 
 export const RemoteData = {
+  of: <D, E>(data: D): Success<D> => ({ _type: Types.success, data }),
   notAsked: (): NotAsked => ({ _type: Types.notAsked }),
   loading: (): Loading => ({ _type: Types.loading }),
   failure: <D, E>(error: E): Failure<E> => ({ _type: Types.failure, error }),

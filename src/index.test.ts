@@ -4,6 +4,11 @@ const identity = <A>(a: A) => a;
 const compose = <A, B, C>(f: (b: B) => C, g: (a: A) => B) => (x: A): C =>
   f(g(x));
 
+const s = RemoteData.success('foo');
+const f = RemoteData.failure(new Error('bar'));
+const n = RemoteData.notAsked();
+const l = RemoteData.loading();
+
 describe('remote-data-ts', () => {
   describe('cata', () => {
     it('transforms the remote data according to the corresponding type', () => {
@@ -21,16 +26,13 @@ describe('remote-data-ts', () => {
     });
   });
 
-  // Functor laws (http://hackage.haskell.org/package/base-4.12.0.0/docs/Data-Functor.html)
+  // Functor laws
+  // - https://wiki.haskell.org/Functor
+  // - http://hackage.haskell.org/package/base-4.12.0.0/docs/Data-Functor.html
   describe('functor', () => {
     // fmap id  ==  id
     it('identity morphism', () => {
       const mapID = map(identity);
-
-      const s = RemoteData.success('foo');
-      const f = RemoteData.failure(new Error('bar'));
-      const n = RemoteData.notAsked();
-      const l = RemoteData.loading();
 
       expect(mapID(s)).toEqual(s);
       expect(mapID(f)).toEqual(f);
@@ -54,11 +56,6 @@ describe('remote-data-ts', () => {
         mapChars,
         mapUpper,
       );
-
-      const s = RemoteData.success('foo');
-      const f = RemoteData.failure(new Error('bar'));
-      const n = RemoteData.notAsked();
-      const l = RemoteData.loading();
 
       expect(map(upperChars)(s)).toEqual(mapUpperChars(s));
       expect(map(upperChars)(f)).toEqual(mapUpperChars(f));
@@ -84,20 +81,46 @@ describe('remote-data-ts', () => {
     });
   });
 
-  describe('chain', () => {
-    it('returns default value for not successful cases', () => {
-      const concatYay = chain((data) => RemoteData.success(`${data} yay`));
+  // Monad laws
+  // - https://wiki.haskell.org/Monad_laws
+  // - http://hackage.haskell.org/package/base-4.12.0.0/docs/Control-Monad.html)
+  describe('monad', () => {
+    const g = (s: string) => RemoteData.of(s + ' yay');
+    const h = (s: string) => RemoteData.of(s + '!');
 
-      const notAsked = RemoteData.notAsked();
-      const loading = RemoteData.loading();
-      const success = RemoteData.success('foo');
-      const failure = RemoteData.failure('bar');
+    // return a >>= g == g a
+    it('left identity', () => {
+      const a = 'foo';
 
-      expect(concatYay(notAsked)).toEqual(notAsked);
-      expect(concatYay(loading)).toEqual(loading);
-      expect(concatYay(failure)).toEqual(failure);
+      expect(chain(g)(RemoteData.of(a))).toEqual(g(a));
+    });
 
-      expect(concatYay(success)).toEqual(RemoteData.success('foo yay'));
+    // m >>= return == m
+    it('right identity', () => {
+      expect(chain(RemoteData.of)(s)).toEqual(s);
+      expect(chain(RemoteData.of)(f)).toEqual(f);
+      expect(chain(RemoteData.of)(l)).toEqual(l);
+      expect(chain(RemoteData.of)(n)).toEqual(n);
+    });
+
+    // (m >>= g) >>= h == m >>= (\x -> g x >>= h)
+    it('associativity', () => {
+      const leftS = chain(h)(chain(g)(s));
+      const rightS = chain((x: string) => chain(h)(g(x)))(s);
+
+      const leftF = chain(h)(chain(g)(f));
+      const rightF = chain((x: string) => chain(h)(g(x)))(f);
+
+      const leftL = chain(h)(chain(g)(l));
+      const rightL = chain((x: string) => chain(h)(g(x)))(l);
+
+      const leftN = chain(h)(chain(g)(n));
+      const rightN = chain((x: string) => chain(h)(g(x)))(n);
+
+      expect(leftS).toEqual(rightS);
+      expect(leftF).toEqual(rightF);
+      expect(leftL).toEqual(rightL);
+      expect(leftN).toEqual(rightN);
     });
   });
 
