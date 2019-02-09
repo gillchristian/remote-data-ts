@@ -1,4 +1,4 @@
-import { RemoteData, cata, map, fold, chain, isLoaded } from './';
+import { RemoteData, cata, map, fold, chain, is } from './';
 
 const identity = <A>(a: A) => a;
 const compose = <A, B, C>(f: (b: B) => C, g: (a: A) => B) => (x: A): C =>
@@ -124,13 +124,57 @@ describe('remote-data-ts', () => {
     });
   });
 
-  describe('isLoaded', () => {
-    it('returns true for cases that finished loading', () => {
-      expect(isLoaded(RemoteData.notAsked())).toBe(false);
-      expect(isLoaded(RemoteData.loading())).toBe(false);
+  describe('is', () => {
+    describe('loaded', () => {
+      it('rd is in "loaded" status', () => {
+        expect(is.loaded(n)).toBe(false);
+        expect(is.loaded(l)).toBe(false);
 
-      expect(isLoaded(RemoteData.success('foo'))).toBe(true);
-      expect(isLoaded(RemoteData.failure('foo'))).toBe(true);
+        expect(is.loaded(s)).toBe(true);
+        expect(is.loaded(f)).toBe(true);
+      });
+    });
+
+    describe('notAsked', () => {
+      it('rd is NotAsked', () => {
+        expect(is.notAsked(n)).toBe(true);
+
+        expect(is.notAsked(l)).toBe(false);
+        expect(is.notAsked(s)).toBe(false);
+        expect(is.notAsked(f)).toBe(false);
+      });
+    });
+
+    describe('loading', () => {
+      it('rd is Loading', () => {
+        expect(is.loading(n)).toBe(false);
+
+        expect(is.loading(l)).toBe(true);
+
+        expect(is.loading(s)).toBe(false);
+        expect(is.loading(f)).toBe(false);
+      });
+    });
+
+    describe('success', () => {
+      it('rd is Success', () => {
+        expect(is.success(n)).toBe(false);
+        expect(is.success(l)).toBe(false);
+
+        expect(is.success(s)).toBe(true);
+
+        expect(is.success(f)).toBe(false);
+      });
+    });
+
+    describe('failure', () => {
+      it('rd is Failure', () => {
+        expect(is.failure(n)).toBe(false);
+        expect(is.failure(l)).toBe(false);
+        expect(is.failure(s)).toBe(false);
+
+        expect(is.failure(f)).toBe(true);
+      });
     });
   });
 });

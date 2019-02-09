@@ -32,18 +32,25 @@ export const RemoteData = {
   success: <D, E>(data: D): Success<D> => ({ _type: Types.success, data }),
 };
 
-export const isNotAsked = (rd: RemoteData<any, any>): rd is NotAsked =>
+const isNotAsked = (rd: RemoteData<any, any>): rd is NotAsked =>
   rd._type === Types.notAsked;
-export const isLoading = (rd: RemoteData<any, any>): rd is Loading =>
+const isLoading = (rd: RemoteData<any, any>): rd is Loading =>
   rd._type === Types.loading;
-export const isSuccess = (rd: RemoteData<any, any>): rd is Success<any> =>
+const isSuccess = (rd: RemoteData<any, any>): rd is Success<any> =>
   rd._type === Types.success;
-export const isFailure = (rd: RemoteData<any, any>): rd is Failure<any> =>
+const isFailure = (rd: RemoteData<any, any>): rd is Failure<any> =>
   rd._type === Types.failure;
 
-export const isLoaded = (
-  rd: RemoteData<any, any>,
-): rd is ResolvedData<any, any> => isSuccess(rd) || isFailure(rd);
+const isLoaded = (rd: RemoteData<any, any>): rd is ResolvedData<any, any> =>
+  isSuccess(rd) || isFailure(rd);
+
+export const is = {
+  notAsked: isNotAsked,
+  loading: isLoading,
+  success: isSuccess,
+  failure: isFailure,
+  loaded: isLoaded,
+};
 
 interface Catafn<D, E, R> {
   notAsked: () => R;
@@ -73,7 +80,7 @@ export const map = <D, E, R>(fn: Mapfn<D, R>) =>
     notAsked: RemoteData.notAsked,
     loading: RemoteData.loading,
     failure: RemoteData.failure,
-    success: (data) => RemoteData.success(fn(data)),
+    success: (data) => RemoteData.of(fn(data)),
   });
 
 // chain :: (a -> RemoteData E b) -> RemoteData E a -> RemoteData E b
@@ -86,12 +93,12 @@ export const chain = <D, E, R>(fn: Chainfn<D, E, R>) =>
     success: (data) => fn(data),
   });
 
-// chain :: (b -> a -> b) -> b -> RemoteData E a -> b
-type Foldfn<D, R> = (acc: R, d: D) => R;
+// fold :: (a -> b) -> b -> RemoteData E a -> b
+type Foldfn<D, R> = (d: D) => R;
 export const fold = <D, E, R>(fn: Foldfn<D, R>) => (def: R) =>
   cata<D, E, R>({
     notAsked: () => def,
     loading: () => def,
     failure: () => def,
-    success: (data) => fn(def, data),
+    success: (data) => fn(data),
   });
