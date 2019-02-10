@@ -1,4 +1,4 @@
-import { RemoteData, cata, map, fold, chain, is } from './';
+import { RemoteData, cata, map, fold, chain, ap, lift2, is } from './';
 
 const identity = <A>(a: A) => a;
 const compose = <A, B, C>(f: (b: B) => C, g: (a: A) => B) => (x: A): C =>
@@ -121,6 +121,79 @@ describe('remote-data-ts', () => {
       expect(leftF).toEqual(rightF);
       expect(leftL).toEqual(rightL);
       expect(leftN).toEqual(rightN);
+    });
+  });
+
+  // Applicative laws
+  // - http://www.tomharding.me/2017/04/10/fantas-eel-and-specification-8/
+  // - http://www.tomharding.me/2017/04/17/fantas-eel-and-specification-9/
+  // - http://hackage.haskell.org/package/base-4.12.0.0/docs/Control-Applicative.html#g:1
+  //
+  // (<$>) :: Functor f     =>   (a -> b) -> f a -> f b
+  // (<*>) :: Applicative f => f (a -> b) -> f a -> f b
+  describe('applicative', () => {
+    // pure id <*> v == v
+    it('identity', () => {
+      const id = ap(RemoteData.of(identity));
+
+      expect(id(n)).toEqual(n);
+      expect(id(l)).toEqual(l);
+      expect(id(f)).toEqual(f);
+      expect(id(s)).toEqual(s);
+    });
+
+    // pure f <*> pure x == pure (f x)
+    it('homomorphism', () => {
+      const f = (s: string) => s.toUpperCase();
+      const x = 'foo';
+
+      const left = ap(RemoteData.of(f))(RemoteData.of(x));
+      const right = RemoteData.of(f(x));
+
+      expect(left).toEqual(right);
+    });
+
+    // u <*> pure y = pure ($ y) <*> u
+    it('interchange', () => {
+      const x = 'foo';
+      const fa = RemoteData.of((s: string) => s.toUpperCase());
+      const l = (f: (s: string) => string) => f(x);
+
+      const left = ap(fa)(RemoteData.of(x));
+      const right = ap(RemoteData.of(l))(fa);
+
+      expect(left).toEqual(right);
+    });
+
+    // pure (.) <*> u <*> v <*> w == u <*> (v <*> w)
+    it('composition', () => {
+      const composeS = (f: (b: string) => string) => (
+        g: (a: string) => string,
+      ) => (a: string) => f(g(a));
+      const f = RemoteData.of((s: string) => s.toUpperCase());
+      const g = RemoteData.of((s: string) => s + '!!!');
+      const rdc = RemoteData.of(composeS);
+
+      const left = ap(ap(ap(rdc)(f))(g))(s);
+
+      const right = ap(f)(ap(g)(s));
+
+      expect(left).toEqual(right);
+    });
+
+    // liftA2 :: Applicative f => (a -> b -> c) -> f a -> f b -> f c
+    // liftA2 f x y = f <$> x <*> y
+    it('lift2', () => {
+      const add = (a: number) => (b: number) => a + b;
+
+      const rda = RemoteData.of(1);
+      const rdb = RemoteData.of(2);
+
+      const left = lift2(add)(rda)(rdb);
+
+      const right = ap(map(add)(rda))(rdb);
+
+      expect(left).toEqual(right);
     });
   });
 

@@ -115,14 +115,14 @@ const is: {
 Pattern match:
 
 ```ts
-type cata = <D, E, R = void>(
-  m: {
-    notAsked: () => R;
-    loading: () => R;
-    failure: (error: E) => R;
-    success: (data: D) => R;
-  },
-) => (rd: RemoteData<D, E>) => R;
+type Match<D, E, R> = {
+  notAsked: () => R;
+  loading: () => R;
+  failure: (error: E) => R;
+  success: (data: D) => R;
+};
+
+type cata = <D, E, R = void>(m: Match<D, E, R>) => (rd: RemoteData<D, E>) => R;
 ```
 
 Transform:
@@ -135,6 +135,14 @@ type map = <D, E, R>(
 type chain = <D, E, R>(
   fn: (d: D) => RemoteData<R, E>,
 ) => (rd: RemoteData<D, E>) => RemoteData<R, E>;
+
+type ap = <D, E, R>(
+  rdfn: RemoteData<(d: D) => R, E>,
+) => (rd: RemoteData<D, E>) => RemoteData<R, E>;
+
+type lift2 = <A, B, C, E>(
+  f: (a: A) => (b: B) => C,
+) => (rda: RemoteData<A, E>) => (rdb: RemoteData<B, E>) => RemoteData<C, E>;
 ```
 
 Extract:

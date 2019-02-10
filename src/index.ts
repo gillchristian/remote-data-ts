@@ -73,7 +73,7 @@ export const cata = <D, E, R = void>(m: Catafn<D, E, R>) => (
   return m.success(rd.data);
 };
 
-// map :: (a -> b) -> RemoteData E a -> RemoteData E b
+// map :: RemoteData E rd => (a -> b) -> rd a -> rd b
 type Mapfn<D, R> = (d: D) => R;
 export const map = <D, E, R>(fn: Mapfn<D, R>) =>
   cata<D, E, RemoteData<R, E>>({
@@ -83,7 +83,7 @@ export const map = <D, E, R>(fn: Mapfn<D, R>) =>
     success: (data) => RemoteData.of(fn(data)),
   });
 
-// chain :: (a -> RemoteData E b) -> RemoteData E a -> RemoteData E b
+// chain :: RemoteData E rd => (a -> rd b) -> rd a -> rd b
 type Chainfn<D, E, R> = (d: D) => RemoteData<R, E>;
 export const chain = <D, E, R>(fn: Chainfn<D, E, R>) =>
   cata<D, E, RemoteData<R, E>>({
@@ -93,7 +93,7 @@ export const chain = <D, E, R>(fn: Chainfn<D, E, R>) =>
     success: (data) => fn(data),
   });
 
-// fold :: (a -> b) -> b -> RemoteData E a -> b
+// fold :: RemoteData E rd => (a -> b) -> b -> rd a -> b
 type Foldfn<D, R> = (d: D) => R;
 export const fold = <D, E, R>(fn: Foldfn<D, R>) => (def: R) =>
   cata<D, E, R>({
@@ -102,3 +102,17 @@ export const fold = <D, E, R>(fn: Foldfn<D, R>) => (def: R) =>
     failure: () => def,
     success: (data) => fn(data),
   });
+
+// ap :: RemoteData E rd => rd (a -> b) -> rd a -> rd b
+export const ap = <D, E, R>(rdfn: RemoteData<(a: D) => R, E>) =>
+  cata<D, E, RemoteData<R, E>>({
+    notAsked: RemoteData.notAsked,
+    loading: RemoteData.loading,
+    failure: RemoteData.failure,
+    success: (v) => map<(a: D) => R, E, R>((f) => f(v))(rdfn),
+  });
+
+// lift2 :: RemoteData E rd => (a -> b -> c) -> rd a -> rd b -> rd c
+export const lift2 = <A, B, C, E>(f: (a: A) => (b: B) => C) => (
+  rda: RemoteData<A, E>,
+) => ap<B, E, C>(map<A, E, (b: B) => C>(f)(rda));
