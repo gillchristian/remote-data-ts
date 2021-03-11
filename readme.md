@@ -20,46 +20,46 @@ npm i remote-data-ts
 RemoteData defines the statuses a fetched data can be:
 
 ```ts
-type RemoteData<Data, Err> = NotAsked | Loading | Success<Data> | Failure<Err>;
+type RemoteData<Data, Err> = NotAsked | Loading | Success<Data> | Failure<Err>
 ```
 
 ```tsx
-import * as React from 'react';
-import { render } from 'react-dom';
-import { RemoteData, cata } from 'remote-data-ts';
+import * as React from 'react'
+import {render} from 'react-dom'
+import {RemoteData, cata} from 'remote-data-ts'
 
-import './styles.css';
+import './styles.css'
 
 interface ArticleProps {
-  title: string;
-  body: string;
+  title: string
+  body: string
 }
 
-const Article: React.SFC<ArticleProps> = ({ title, body }) => (
+const Article: React.SFC<ArticleProps> = ({title, body}) => (
   <>
     <h1>{title}</h1>
     <p>{body}</p>
   </>
-);
+)
 
-type State = RemoteData<ArticleProps, string>;
+type State = RemoteData<ArticleProps, string>
 
 class App extends React.Component<void, State> {
-  state = RemoteData.notAsked();
+  state = RemoteData.notAsked()
 
   componentDidMount() {
-    this.setState(RemoteData.loading());
+    this.setState(RemoteData.loading())
 
     fetch('https://jsonplaceholder.typicode.com/posts/1')
       .then((res) =>
         res.ok ? res.json() : new Error(`${res.status} ${res.statusText}`),
       )
       .then((article: ArticleProps) => {
-        this.setState(RemoteData.success(article));
+        this.setState(RemoteData.success(article))
       })
       .catch((err: Error) => {
-        this.setState(RemoteData.failure(err.message));
-      });
+        this.setState(RemoteData.failure(err.message))
+      })
   }
 
   render() {
@@ -74,11 +74,11 @@ class App extends React.Component<void, State> {
           ),
         })(this.state)}
       </div>
-    );
+    )
   }
 }
 
-render(<App />, document.getElementById('root'));
+render(<App />, document.getElementById('root'))
 ```
 
 [![Edit kx6q84nk5o](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/s/kx6q84nk5o)
@@ -88,41 +88,41 @@ render(<App />, document.getElementById('root'));
 Create instances:
 
 ```ts
-RemoteData.notAsked(); // NotAsked
+RemoteData.notAsked() // NotAsked
 
-RemoteData.loading(); // Loading
+RemoteData.loading() // Loading
 
-RemoteData.of('foo'); // Success<string>
-RemoteData.success('foo'); // Success<string>
+RemoteData.of('foo') // Success<string>
+RemoteData.success('foo') // Success<string>
 
-RemoteData.failure(new Error('failed')); // Failure<Error>
+RemoteData.failure(new Error('failed')) // Failure<Error>
 ```
 
 Check status:
 
 ```ts
-type ResolvedData<D, E> = Failure<E> | Success<D>;
+type ResolvedData<D, E> = Failure<E> | Success<D>
 
 const is: {
-  notAsked: (rd: RemoteData<any, any>) => rd is NotAsked;
-  loading: (rd: RemoteData<any, any>) => rd is Loading;
-  success: (rd: RemoteData<any, any>) => rd is Success<any>;
-  failure: (rd: RemoteData<any, any>) => rd is Failure<any>;
-  loaded: (rd: RemoteData<any, any>) => rd is ResolvedData<any, any>;
-};
+  notAsked: (rd: RemoteData<any, any>) => rd is NotAsked
+  loading: (rd: RemoteData<any, any>) => rd is Loading
+  success: (rd: RemoteData<any, any>) => rd is Success<any>
+  failure: (rd: RemoteData<any, any>) => rd is Failure<any>
+  loaded: (rd: RemoteData<any, any>) => rd is ResolvedData<any, any>
+}
 ```
 
 Pattern match:
 
 ```ts
 type Match<D, E, R> = {
-  notAsked: () => R;
-  loading: () => R;
-  failure: (error: E) => R;
-  success: (data: D) => R;
-};
+  notAsked: () => R
+  loading: () => R
+  failure: (error: E) => R
+  success: (data: D) => R
+}
 
-type cata = <D, E, R = void>(m: Match<D, E, R>) => (rd: RemoteData<D, E>) => R;
+type cata = <D, E, R = void>(m: Match<D, E, R>) => (rd: RemoteData<D, E>) => R
 ```
 
 Transform:
@@ -130,19 +130,19 @@ Transform:
 ```ts
 type map = <D, E, R>(
   fn: (d: D) => R<D, R>,
-) => (rd: RemoteData<D, E>) => RemoteData<R, E>;
+) => (rd: RemoteData<D, E>) => RemoteData<R, E>
 
 type chain = <D, E, R>(
   fn: (d: D) => RemoteData<R, E>,
-) => (rd: RemoteData<D, E>) => RemoteData<R, E>;
+) => (rd: RemoteData<D, E>) => RemoteData<R, E>
 
 type ap = <D, E, R>(
   rdfn: RemoteData<(d: D) => R, E>,
-) => (rd: RemoteData<D, E>) => RemoteData<R, E>;
+) => (rd: RemoteData<D, E>) => RemoteData<R, E>
 
 type lift2 = <A, B, C, E>(
   f: (a: A) => (b: B) => C,
-) => (rda: RemoteData<A, E>) => (rdb: RemoteData<B, E>) => RemoteData<C, E>;
+) => (rda: RemoteData<A, E>) => (rdb: RemoteData<B, E>) => RemoteData<C, E>
 ```
 
 Extract:
@@ -150,7 +150,7 @@ Extract:
 ```ts
 type fold = <D, E, R>(
   fn: (d: D) => R,
-) => (def: R) => (rd: RemoteData<D, E>) => R;
+) => (def: R) => (rd: RemoteData<D, E>) => R
 ```
 
 ## License
