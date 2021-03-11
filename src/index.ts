@@ -381,7 +381,7 @@ export const getSemigroupSecond = <E, A>(): Semigroup<RemoteData<E, A>> => ({
  */
 export const getMonoidSecond = <E, A>(): Monoid<RemoteData<E, A>> => ({
   empty: notAsked,
-  concat: getSemigroupFirst<E, A>().concat,
+  concat: getSemigroupSecond<E, A>().concat,
 })
 
 /**
