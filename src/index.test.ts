@@ -79,7 +79,7 @@ describe('getOrd', () => {
 describe('getSemigroupFirst', () => {
   it('satisfies the Semigroup laws', () =>
     laws.semigroup(
-      RD.getSemigroupFirst(),
+      RD.getSemigroupFirst<string, number>(),
       RD.getEq(eqString, eqNumber),
       getRemoteData(fc.string(), fc.integer()),
     ))
@@ -88,7 +88,7 @@ describe('getSemigroupFirst', () => {
 describe('getSemigroupSecond', () => {
   it('satisfies the Semigroup laws', () =>
     laws.semigroup(
-      RD.getSemigroupSecond(),
+      RD.getSemigroupSecond<string, number>(),
       RD.getEq(eqString, eqNumber),
       getRemoteData(fc.string(), fc.integer()),
     ))
@@ -96,8 +96,8 @@ describe('getSemigroupSecond', () => {
 
 describe('getMonoidFirst', () => {
   it('satisfies the Monoid laws', () =>
-    laws.semigroup(
-      RD.getMonoidFirst(),
+    laws.monoid(
+      RD.getMonoidFirst<string, number>(),
       RD.getEq(eqString, eqNumber),
       getRemoteData(fc.string(), fc.integer()),
     ))
@@ -105,8 +105,8 @@ describe('getMonoidFirst', () => {
 
 describe('getMonoidSecond', () => {
   it('satisfies the Monoid laws', () =>
-    laws.semigroup(
-      RD.getMonoidSecond(),
+    laws.monoid(
+      RD.getMonoidSecond<string, number>(),
       RD.getEq(eqString, eqNumber),
       getRemoteData(fc.string(), fc.integer()),
     ))

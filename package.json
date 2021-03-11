@@ -28,7 +28,7 @@
     "build:cmjs": "tsc --module commonjs --outDir dist/cmjs",
     "test": "jest --coverage",
     "test:watch": "jest --watch",
-    "format": "prettier  --write '**/*.{ts,json,md}'",
+    "fmt": "prettier  --write '**/*.{ts,json,md}'",
     "format:changed": "pretty-quick",
     "precommit": "pretty-quick --staged",
     "prerelease": "yarn build",
