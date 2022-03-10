@@ -1,6 +1,6 @@
 <h1 align="center">remote-data-ts</h1>
 
-[![Test](https://gillchristian.github.io/remote-data-ts/actions/workflows/build.yml/badge.svg)](https://gillchristian.github.io/remote-data-ts/actions/workflows/build.yml)
+[![Test](https://github.com/gillchristian/remote-data-ts/actions/workflows/build.yml/badge.svg?branch=master)](https://github.com/gillchristian/remote-data-ts/actions/workflows/build.yml)
 
 Represent fetched data and the statuses it can be in.
 
