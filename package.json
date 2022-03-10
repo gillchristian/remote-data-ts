@@ -33,14 +33,12 @@
     "test:watch": "jest --watch",
     "docs": "docs-ts",
     "release": "np",
-    "spell": "cspell '**/*.*'",
     "md": "markdown"
   },
   "devDependencies": {
     "@types/jest": "^27.4.1",
     "@typescript-eslint/eslint-plugin": "^4.25.0",
     "@typescript-eslint/parser": "^4.25.0",
-    "cspell": "^5.5.2",
     "docs-ts": "^0.6.10",
     "eslint": "^7.27.0",
     "fast-check": "^2.22.0",

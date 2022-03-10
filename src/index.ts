@@ -75,20 +75,22 @@ export const success = <D = unknown>(data: D): RemoteData<never, D> => ({
 export const of = success;
 
 /** @since 3.0.0 */
-export const isNotAsked = (rd: RemoteData<any, any>): rd is NotAsked =>
+export const isNotAsked = (rd: RemoteData<unknown, unknown>): rd is NotAsked =>
   rd.tag === 'NotAsked';
 
 /** @since 3.0.0 */
-export const isLoading = (rd: RemoteData<any, any>): rd is Loading =>
+export const isLoading = (rd: RemoteData<unknown, unknown>): rd is Loading =>
   rd.tag === 'Loading';
 
 /** @since 3.0.0 */
-export const isSuccess = (rd: RemoteData<any, any>): rd is Success<any> =>
-  rd.tag === 'Success';
+export const isSuccess = (
+  rd: RemoteData<unknown, unknown>,
+): rd is Success<unknown> => rd.tag === 'Success';
 
 /** @since 3.0.0 */
-export const isFailure = (rd: RemoteData<any, any>): rd is Failure<any> =>
-  rd.tag === 'Failure';
+export const isFailure = (
+  rd: RemoteData<unknown, unknown>,
+): rd is Failure<unknown> => rd.tag === 'Failure';
 
 /** @since 3.0.0 */
 export const match =
@@ -199,7 +201,11 @@ export const Bifunctor: Bifunctor2<URI> = {
     })(rda),
 };
 
-const reduce = <E, A, B>(rda: RemoteData<E, A>, b: B, f: (b: B, a: A) => B) =>
+const reduce = <E, A, B>(
+  rda: RemoteData<E, A>,
+  b: B,
+  f: (b: B, a: A) => B,
+): B =>
   match<E, A, B>({
     notAsked: () => b,
     loading: () => b,
@@ -264,7 +270,7 @@ export const Traversable: Traversable2<URI> = {
 /** @since 3.0.0 */
 export const alt =
   <E, A>(that: Lazy<RemoteData<E, A>>) =>
-  (fa: RemoteData<E, A>) =>
+  (fa: RemoteData<E, A>): RemoteData<E, A> =>
     isSuccess(fa) ? fa : that();
 
 /** @since 3.0.0 */
