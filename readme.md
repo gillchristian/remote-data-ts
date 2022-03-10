@@ -1,6 +1,6 @@
 <h1 align="center">remote-data-ts</h1>
 
-[![CircleCI](https://circleci.com/gh/gillchristian/remote-data-ts.svg?style=svg)](https://circleci.com/gh/gillchristian/remote-data-ts)
+[![Test](https:&#x2F;&#x2F;gillchristian.github.io&#x2F;remote-data-ts&#x2F;actions&#x2F;workflows&#x2F;build.yml&#x2F;badge.svg)](https:&#x2F;&#x2F;gillchristian.github.io&#x2F;remote-data-ts&#x2F;actions&#x2F;workflows&#x2F;build.yml)
 
 Represent fetched data and the statuses it can be in.
 
@@ -10,10 +10,12 @@ Inspired by Elm's
 ## Install
 
 ```
-yarn add remote-data-ts
+yarn add fp-ts remote-data-ts
 
-npm i remote-data-ts
+npm i fp-ts remote-data-ts
 ```
+
+`fp-ts` is a peer dependency.
 
 ## Usage
 

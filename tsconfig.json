@@ -1,27 +1,9 @@
 {
+  "extends": "./tsconfig.settings.json",
   "compilerOptions": {
     "target": "es5",
     "module": "commonjs",
-    "lib": ["es6"],
-    "rootDir": "src",
-    "declarationDir": "./",
-    "sourceMap": false,
-    "declaration": true,
-    "strict": true,
-    "noImplicitAny": true,
-    "strictNullChecks": true,
-    "strictFunctionTypes": true,
-    "strictBindCallApply": true,
-    "strictPropertyInitialization": true,
-    "noImplicitThis": true,
-    "alwaysStrict": true,
-    "noUnusedLocals": true,
-    "noImplicitReturns": true,
-    "noFallthroughCasesInSwitch": true,
-    "suppressImplicitAnyIndexErrors": true,
-    "moduleResolution": "node",
-    "noErrorTruncation": true,
-    "esModuleInterop": true
+    "noEmit": true
   },
-  "exclude": ["node_modules", "dist", "index.d.ts", "src/index.test.ts"]
+  "include": ["src/**/*.ts", "tests/**/*.ts"]
 }
