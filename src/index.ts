@@ -1,25 +1,21 @@
-import {Alt2} from 'fp-ts/lib/Alt'
-import {
-  Applicative2,
-  Applicative as ApplicativeHKT,
-} from 'fp-ts/lib/Applicative'
-import {Apply2} from 'fp-ts/lib/Apply'
-import {Bifunctor2} from 'fp-ts/lib/Bifunctor'
-import {Chain2} from 'fp-ts/lib/Chain'
-import {Eq} from 'fp-ts/lib/Eq'
-import {Ord} from 'fp-ts/lib/Ord'
-import {Foldable2} from 'fp-ts/lib/Foldable'
-import {Functor2} from 'fp-ts/lib/Functor'
-import {HKT} from 'fp-ts/lib/HKT'
-import {Monad2} from 'fp-ts/lib/Monad'
-import {MonadThrow2} from 'fp-ts/lib/MonadThrow'
-import {Monoid} from 'fp-ts/lib/Monoid'
-import {Semigroup} from 'fp-ts/lib/Semigroup'
-import {PipeableTraverse2, Traversable2} from 'fp-ts/lib/Traversable'
-import {pipe, pipeable} from 'fp-ts/lib/pipeable'
-import {flow, constNull, identity, Lazy, Predicate} from 'fp-ts/lib/function'
-import * as O from 'fp-ts/lib/Option'
-import * as E from 'fp-ts/lib/Either'
+import {Alt2} from 'fp-ts/Alt'
+import {Applicative2, Applicative as ApplicativeHKT} from 'fp-ts/Applicative'
+import {Apply2} from 'fp-ts/Apply'
+import {Bifunctor2} from 'fp-ts/Bifunctor'
+import {Chain2} from 'fp-ts/Chain'
+import {Eq} from 'fp-ts/Eq'
+import {Ord} from 'fp-ts/Ord'
+import {Foldable2} from 'fp-ts/Foldable'
+import {Functor2} from 'fp-ts/Functor'
+import {HKT} from 'fp-ts/HKT'
+import {Monad2} from 'fp-ts/Monad'
+import {MonadThrow2} from 'fp-ts/MonadThrow'
+import {Monoid} from 'fp-ts/Monoid'
+import {PipeableTraverse2, Traversable2} from 'fp-ts/Traversable'
+import {pipeable} from 'fp-ts/pipeable'
+import {pipe, flow, constNull, identity, Lazy, Predicate} from 'fp-ts/function'
+import * as O from 'fp-ts/Option'
+import * as E from 'fp-ts/Either'
 
 /**
  * @since 3.0.0
@@ -38,7 +34,7 @@ export interface Loading {
 /**
  * @since 3.0.0
  */
-export interface Success<A> {
+export interface Success<A = unknown> {
   readonly tag: 'Success'
   readonly data: A
 }
@@ -46,7 +42,7 @@ export interface Success<A> {
 /**
  * @since 3.0.0
  */
-export interface Failure<E> {
+export interface Failure<E = unknown> {
   readonly tag: 'Failure'
   readonly error: E
 }
@@ -54,22 +50,26 @@ export interface Failure<E> {
 /**
  * @since 3.0.0
  */
-export type RemoteData<E, A> = NotAsked | Loading | Failure<E> | Success<A>
+export type RemoteData<E = unknown, A = unknown> =
+  | NotAsked
+  | Loading
+  | Failure<E>
+  | Success<A>
 
 /**
  * @since 3.0.0
  */
-export const notAsked: NotAsked = {tag: 'NotAsked'}
+export const notAsked: RemoteData<never, never> = {tag: 'NotAsked'}
 
 /**
  * @since 3.0.0
  */
-export const loading: Loading = {tag: 'Loading'}
+export const loading: RemoteData<never, never> = {tag: 'Loading'}
 
 /**
  * @since 3.0.0
  */
-export const failure = <E = unknown>(error: E): Failure<E> => ({
+export const failure = <E = unknown>(error: E): RemoteData<E, never> => ({
   tag: 'Failure',
   error,
 })
@@ -77,7 +77,7 @@ export const failure = <E = unknown>(error: E): Failure<E> => ({
 /**
  * @since 3.0.0
  */
-export const success = <D = unknown>(data: D): Success<D> => ({
+export const success = <D = unknown>(data: D): RemoteData<never, D> => ({
   tag: 'Success',
   data,
 })
@@ -114,23 +114,25 @@ export const isFailure = (rd: RemoteData<any, any>): rd is Failure<any> =>
 /**
  * @since 3.0.0
  */
-export const fold = <E = unknown, D = unknown, R = unknown>(matcher: {
-  notAsked: () => R
-  loading: () => R
-  success: (data: D) => R
-  failure: (error: E) => R
-}) => (rd: RemoteData<E, D>): R => {
-  if (rd.tag === 'NotAsked') {
-    return matcher.notAsked()
+export const match =
+  <E = unknown, D = unknown, R = unknown>(matcher: {
+    notAsked: () => R
+    loading: () => R
+    success: (data: D) => R
+    failure: (error: E) => R
+  }) =>
+  (rd: RemoteData<E, D>): R => {
+    if (rd.tag === 'NotAsked') {
+      return matcher.notAsked()
+    }
+    if (rd.tag === 'Loading') {
+      return matcher.loading()
+    }
+    if (rd.tag === 'Failure') {
+      return matcher.failure(rd.error)
+    }
+    return matcher.success(rd.data)
   }
-  if (rd.tag === 'Loading') {
-    return matcher.loading()
-  }
-  if (rd.tag === 'Failure') {
-    return matcher.failure(rd.error)
-  }
-  return matcher.success(rd.data)
-}
 
 // TypeClasses
 
@@ -156,7 +158,7 @@ declare module 'fp-ts/lib/HKT' {
 export const Functor: Functor2<URI> = {
   URI,
   map: <E, A, B>(rda: RemoteData<E, A>, f: (a: A) => B): RemoteData<E, B> =>
-    fold<E, A, RemoteData<E, B>>({
+    match<E, A, RemoteData<E, B>>({
       notAsked: () => notAsked,
       loading: () => loading,
       failure,
@@ -173,7 +175,7 @@ export const Apply: Apply2<URI> = {
     rdf: RemoteData<E, (a: A) => B>,
     rda: RemoteData<E, A>,
   ): RemoteData<E, B> =>
-    fold<E, (a: A) => B, RemoteData<E, B>>({
+    match<E, (a: A) => B, RemoteData<E, B>>({
       notAsked: () => notAsked,
       loading: () => loading,
       failure,
@@ -195,7 +197,7 @@ export const Chain: Chain2<URI> = {
     rda: RemoteData<E, A>,
     f: (a: A) => RemoteData<E, B>,
   ): RemoteData<E, B> =>
-    fold<E, A, RemoteData<E, B>>({
+    match<E, A, RemoteData<E, B>>({
       notAsked: () => notAsked,
       loading: () => loading,
       failure,
@@ -223,14 +225,14 @@ export const Bifunctor: Bifunctor2<URI> = {
     f: (e: E) => G,
     g: (a: A) => B,
   ): RemoteData<G, B> =>
-    fold<E, A, RemoteData<G, B>>({
+    match<E, A, RemoteData<G, B>>({
       notAsked: () => notAsked,
       loading: () => loading,
       failure: (error) => failure(f(error)),
       success: (data) => success(g(data)),
     })(rdea),
   mapLeft: <E, A, G>(rda: RemoteData<E, A>, f: (a: E) => G): RemoteData<G, A> =>
-    fold<E, A, RemoteData<G, A>>({
+    match<E, A, RemoteData<G, A>>({
       notAsked: () => notAsked,
       loading: () => loading,
       failure: (error) => failure(f(error)),
@@ -239,7 +241,7 @@ export const Bifunctor: Bifunctor2<URI> = {
 }
 
 const reduce = <E, A, B>(rda: RemoteData<E, A>, b: B, f: (b: B, a: A) => B) =>
-  fold<E, A, B>({
+  match<E, A, B>({
     notAsked: () => b,
     loading: () => b,
     failure: () => b,
@@ -254,46 +256,43 @@ export const Foldable: Foldable2<URI> = {
   reduce,
   reduceRight: <E, A, B>(rda: RemoteData<E, A>, b: B, f: (a: A, b: B) => B) =>
     reduce(rda, b, (b_, a_) => f(a_, b_)),
-  foldMap: <M>(M: Monoid<M>) => <E, A>(
-    rda: RemoteData<E, A>,
-    f: (a: A) => M,
-  ): M =>
-    fold<E, A, M>({
-      notAsked: () => M.empty,
-      loading: () => M.empty,
-      failure: () => M.empty,
-      success: (data) => f(data),
-    })(rda),
+  foldMap:
+    <M>(M: Monoid<M>) =>
+    <E, A>(rda: RemoteData<E, A>, f: (a: A) => M): M =>
+      match<E, A, M>({
+        notAsked: () => M.empty,
+        loading: () => M.empty,
+        failure: () => M.empty,
+        success: (data) => f(data),
+      })(rda),
 }
 
 /**
  * @since 3.0.0
  */
-export const sequence: Traversable2<URI>['sequence'] = <F>(
-  F: ApplicativeHKT<F>,
-) => <E, A>(ma: RemoteData<E, HKT<F, A>>): HKT<F, RemoteData<E, A>> =>
-  fold<E, HKT<F, A>, HKT<F, RemoteData<E, A>>>({
-    notAsked: () => F.of(notAsked),
-    loading: () => F.of(loading),
-    success: (t) => F.map(t, success),
-    failure: flow(failure, F.of),
-  })(ma)
+export const sequence: Traversable2<URI>['sequence'] =
+  <F>(F: ApplicativeHKT<F>) =>
+  <E, A>(ma: RemoteData<E, HKT<F, A>>): HKT<F, RemoteData<E, A>> =>
+    match<E, HKT<F, A>, HKT<F, RemoteData<E, A>>>({
+      notAsked: () => F.of(notAsked),
+      loading: () => F.of(loading),
+      success: (t) => F.map(t, success),
+      failure: flow(failure, F.of),
+    })(ma)
 
 /**
  * @since 3.0.0
  */
-export const traverse: PipeableTraverse2<URI> = <F>(F: ApplicativeHKT<F>) => <
-  A,
-  B
->(
-  f: (a: A) => HKT<F, B>,
-) => <E>(ta: RemoteData<E, A>): HKT<F, RemoteData<E, B>> =>
-  fold<E, A, HKT<F, RemoteData<E, B>>>({
-    notAsked: () => F.of(notAsked),
-    loading: () => F.of(loading),
-    success: (ta) => F.map<B, RemoteData<E, B>>(f(ta), success),
-    failure: flow(failure, F.of),
-  })(ta)
+export const traverse: PipeableTraverse2<URI> =
+  <F>(F: ApplicativeHKT<F>) =>
+  <A, B>(f: (a: A) => HKT<F, B>) =>
+  <E>(ta: RemoteData<E, A>): HKT<F, RemoteData<E, B>> =>
+    match<E, A, HKT<F, RemoteData<E, B>>>({
+      notAsked: () => F.of(notAsked),
+      loading: () => F.of(loading),
+      success: (ta) => F.map<B, RemoteData<E, B>>(f(ta), success),
+      failure: flow(failure, F.of),
+    })(ta)
 
 /**
  * @since 3.0.0
@@ -302,18 +301,22 @@ export const Traversable: Traversable2<URI> = {
   ...Functor,
   ...Foldable,
   sequence,
-  traverse: <F>(F: ApplicativeHKT<F>) => <E, A, B>(
-    ta: RemoteData<E, A>,
-    f: (a: A) => HKT<F, B>,
-  ): HKT<F, RemoteData<E, B>> => traverse(F)(f)(ta),
+  traverse:
+    <F>(F: ApplicativeHKT<F>) =>
+    <E, A, B>(
+      ta: RemoteData<E, A>,
+      f: (a: A) => HKT<F, B>,
+    ): HKT<F, RemoteData<E, B>> =>
+      traverse(F)(f)(ta),
 }
 
 /**
  * @since 3.0.0
  */
-export const alt = <E, A>(that: Lazy<RemoteData<E, A>>) => (
-  fa: RemoteData<E, A>,
-) => (isSuccess(fa) ? fa : that())
+export const alt =
+  <E, A>(that: Lazy<RemoteData<E, A>>) =>
+  (fa: RemoteData<E, A>) =>
+    isSuccess(fa) ? fa : that()
 
 /**
  * @since 3.0.0
@@ -351,38 +354,6 @@ export const {
   map,
   mapLeft,
 } = pipeable(remoteData)
-
-/**
- * @since 3.0.0
- */
-export const getSemigroupFirst = <E, A>(): Semigroup<RemoteData<E, A>> => ({
-  concat: (a: RemoteData<E, A>, b: RemoteData<E, A>) =>
-    isSuccess(a) ? a : isSuccess(b) ? b : a,
-})
-
-/**
- * @since 3.0.0
- */
-export const getMonoidFirst = <E, A>(): Monoid<RemoteData<E, A>> => ({
-  empty: notAsked,
-  concat: getSemigroupFirst<E, A>().concat,
-})
-
-/**
- * @since 3.0.0
- */
-export const getSemigroupSecond = <E, A>(): Semigroup<RemoteData<E, A>> => ({
-  concat: (a: RemoteData<E, A>, b: RemoteData<E, A>) =>
-    isSuccess(b) ? b : isSuccess(a) ? a : b,
-})
-
-/**
- * @since 3.0.0
- */
-export const getMonoidSecond = <E, A>(): Monoid<RemoteData<E, A>> => ({
-  empty: notAsked,
-  concat: getSemigroupSecond<E, A>().concat,
-})
 
 /**
  * @since 3.0.0
@@ -436,16 +407,19 @@ export function getOrd<E, A>(
 /**
  * @since 3.0.0
  */
-export const getOrElse = <E = unknown, A = unknown>(
-  onNone: (status: 'notAsked' | 'loading') => A,
-  onFailure: (err: E) => A,
-) => (rda: RemoteData<E, A>): A =>
-  fold<E, A, A>({
-    notAsked: () => onNone('notAsked'),
-    loading: () => onNone('loading'),
-    success: identity,
-    failure: onFailure,
-  })(rda)
+export const getOrElse =
+  <E = unknown, A = unknown>(
+    onNotAsked: () => A,
+    onLoading: () => A,
+    onFailure: (err: E) => A,
+  ) =>
+  (rda: RemoteData<E, A>): A =>
+    match<E, A, A>({
+      notAsked: onNotAsked,
+      loading: onLoading,
+      success: identity,
+      failure: onFailure,
+    })(rda)
 
 /**
  * @since 3.0.0
@@ -453,7 +427,7 @@ export const getOrElse = <E = unknown, A = unknown>(
 export const toNullable = <E = unknown, A = unknown>(
   rda: RemoteData<E, A>,
 ): A | null =>
-  fold<E, A, A | null>({
+  match<E, A, A | null>({
     notAsked: constNull,
     loading: constNull,
     success: identity,
@@ -468,16 +442,19 @@ export const toOption = flow(toNullable, O.fromNullable)
 /**
  * @since 3.0.0
  */
-export const toEither = <E = unknown, L = unknown>(
-  onNone: (status: 'notAsked' | 'loading') => L,
-  onFailure: (err: E) => L,
-) => <A = unknown>(rda: RemoteData<E, A>): E.Either<L, A> =>
-  fold<E, A, E.Either<L, A>>({
-    notAsked: () => E.left(onNone('notAsked')),
-    loading: () => E.left(onNone('loading')),
-    success: E.right,
-    failure: flow(E.left, E.mapLeft(onFailure)),
-  })(rda)
+export const toEither =
+  <E = unknown, L = unknown>(
+    onNotAsked: () => L,
+    onLoading: () => L,
+    onFailure: (err: E) => L,
+  ) =>
+  <A = unknown>(rda: RemoteData<E, A>): E.Either<L, A> =>
+    match<E, A, E.Either<L, A>>({
+      notAsked: () => E.left(onNotAsked()),
+      loading: () => E.left(onLoading()),
+      success: E.right,
+      failure: flow(E.left, E.mapLeft(onFailure)),
+    })(rda)
 
 /**
  * @since 3.0.0
@@ -485,7 +462,7 @@ export const toEither = <E = unknown, L = unknown>(
 export const swap = <E = unknown, A = unknown>(
   rda: RemoteData<E, A>,
 ): RemoteData<A, E> =>
-  fold<E, A, RemoteData<A, E>>({
+  match<E, A, RemoteData<A, E>>({
     notAsked: () => notAsked,
     loading: () => loading,
     success: failure,
@@ -495,39 +472,38 @@ export const swap = <E = unknown, A = unknown>(
 /**
  * @since 3.0.0
  */
-export const mapFailure = <E = unknown, G = unknown, A = unknown>(
-  f: (error: E) => G,
-) => (rda: RemoteData<E, A>): RemoteData<G, A> =>
-  fold<E, A, RemoteData<G, A>>({
-    notAsked: () => notAsked,
-    loading: () => loading,
-    success,
-    failure: (error) => failure(f(error)),
-  })(rda)
+export const mapFailure =
+  <E = unknown, G = unknown, A = unknown>(f: (error: E) => G) =>
+  (rda: RemoteData<E, A>): RemoteData<G, A> =>
+    match<E, A, RemoteData<G, A>>({
+      notAsked: () => notAsked,
+      loading: () => loading,
+      success,
+      failure: (error) => failure(f(error)),
+    })(rda)
 
 /**
  * @since 3.0.0
  */
-export const exists = <A = unknown>(predicate: Predicate<A>) => <E = unknown>(
-  rda: RemoteData<E, A>,
-): boolean =>
-  fold<E, A, boolean>({
-    notAsked: () => false,
-    loading: () => false,
-    failure: () => false,
-    success: predicate,
-  })(rda)
+export const exists =
+  <A = unknown>(predicate: Predicate<A>) =>
+  <E = unknown>(rda: RemoteData<E, A>): boolean =>
+    match<E, A, boolean>({
+      notAsked: () => false,
+      loading: () => false,
+      failure: () => false,
+      success: predicate,
+    })(rda)
 
 /**
  * @since 3.0.0
  */
-export const elem = <A = unknown>(E: Eq<A>) => <E = unknown>(
-  a: A,
-  rda: RemoteData<E, A>,
-): boolean =>
-  fold<E, A, boolean>({
-    notAsked: () => false,
-    loading: () => false,
-    failure: () => false,
-    success: (b) => E.equals(a, b),
-  })(rda)
+export const elem =
+  <A = unknown>(E: Eq<A>) =>
+  <E = unknown>(a: A, rda: RemoteData<E, A>): boolean =>
+    match<E, A, boolean>({
+      notAsked: () => false,
+      loading: () => false,
+      failure: () => false,
+      success: (b) => E.equals(a, b),
+    })(rda)

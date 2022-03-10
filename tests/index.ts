@@ -1,9 +1,9 @@
 import * as laws from 'fp-ts-laws'
 import * as fc from 'fast-check'
 import {eqString, eqNumber} from 'fp-ts/Eq'
-
-import * as RD from './index'
 import {ordString, ordNumber} from 'fp-ts/lib/Ord'
+
+import * as RD from '../src/index'
 
 const getNotAsked = <E, A>(): fc.Arbitrary<RD.RemoteData<E, A>> =>
   fc.constant(RD.notAsked)
@@ -60,7 +60,7 @@ describe('Monad', () => {
     laws.monad(RD.remoteData)((S) => RD.getEq(eqString, S)))
 })
 
-describe('getEq', () => {
+describe('Eq', () => {
   it('satisfies the Eq laws', () =>
     laws.eq(
       RD.getEq(eqString, eqNumber),
@@ -68,46 +68,10 @@ describe('getEq', () => {
     ))
 })
 
-describe('getOrd', () => {
+describe('Ord', () => {
   it('satisfies the Ord laws', () =>
     laws.ord(
       RD.getOrd(ordString, ordNumber),
-      getRemoteData(fc.string(), fc.integer()),
-    ))
-})
-
-describe('getSemigroupFirst', () => {
-  it('satisfies the Semigroup laws', () =>
-    laws.semigroup(
-      RD.getSemigroupFirst<string, number>(),
-      RD.getEq(eqString, eqNumber),
-      getRemoteData(fc.string(), fc.integer()),
-    ))
-})
-
-describe('getSemigroupSecond', () => {
-  it('satisfies the Semigroup laws', () =>
-    laws.semigroup(
-      RD.getSemigroupSecond<string, number>(),
-      RD.getEq(eqString, eqNumber),
-      getRemoteData(fc.string(), fc.integer()),
-    ))
-})
-
-describe('getMonoidFirst', () => {
-  it('satisfies the Monoid laws', () =>
-    laws.monoid(
-      RD.getMonoidFirst<string, number>(),
-      RD.getEq(eqString, eqNumber),
-      getRemoteData(fc.string(), fc.integer()),
-    ))
-})
-
-describe('getMonoidSecond', () => {
-  it('satisfies the Monoid laws', () =>
-    laws.monoid(
-      RD.getMonoidSecond<string, number>(),
-      RD.getEq(eqString, eqNumber),
       getRemoteData(fc.string(), fc.integer()),
     ))
 })
