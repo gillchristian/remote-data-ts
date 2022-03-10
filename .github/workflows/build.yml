@@ -31,10 +31,7 @@ jobs:
       - run: yarn test
       - run: yarn lint
   deploy-docs:
-    on:
-      push:
-        branches:
-          - master
+    if: github.ref == 'refs/heads/master'
     needs:
       - build
     runs-on: ubuntu-latest
