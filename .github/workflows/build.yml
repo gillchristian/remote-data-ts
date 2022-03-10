@@ -30,6 +30,7 @@ jobs:
       - run: yarn build
       - run: yarn test
       - run: yarn lint
+
   deploy-docs:
     if: github.ref == 'refs/heads/master'
     needs:
