@@ -29,7 +29,8 @@
     "test": "jest --coverage",
     "test:watch": "jest --watch",
     "fmt": "prettier  --write '**/*.{ts,json,md}'",
-    "format:changed": "pretty-quick",
+    "fmt:changed": "pretty-quick",
+    "fmt:check": "prettier  --check '**/*.{ts,json,md}'",
     "precommit": "pretty-quick --staged",
     "prerelease": "yarn build",
     "release": "np"
