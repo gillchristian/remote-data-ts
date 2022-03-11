@@ -6,7 +6,7 @@ search_enabled: true
 # Aux links for the upper right navigation
 aux_links:
   'remote-data-ts on GitHub':
-    - ''
+    - 'https://gillchristian.github.io/remote-data-ts'
 
 remote_theme: pmarsceill/just-the-docs
 
