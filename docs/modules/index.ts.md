@@ -13,7 +13,8 @@ type RemoteData<E, A> = NotAsked | Loading | Success<A> | Failure<E>;
 ```
 
 For examples check
-[github.com/gillchristian/remote-data-ts/examples/index.ts](https://github.com/gillchristian/remote-data-ts/examples/index.ts).
+[examples/index.ts](https://github.com/gillchristian/remote-data-ts/blob/master/examples/index.ts)
+in the repository.
 
 Added in v3.0.0
 

@@ -6,7 +6,8 @@
  * ```
  *
  * For examples check
- * [github.com/gillchristian/remote-data-ts/examples/index.ts](https://github.com/gillchristian/remote-data-ts/examples/index.ts).
+ * [examples/index.ts](https://github.com/gillchristian/remote-data-ts/blob/master/examples/index.ts)
+ * in the repository.
  *
  * @since 3.0.0
  */
