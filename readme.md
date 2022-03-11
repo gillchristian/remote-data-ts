@@ -85,6 +85,8 @@ const App: SFC = () => {
 render(<App />, document.getElementById('root'));
 ```
 
+See other examples in [examples/index.ts](/examples/index.ts).
+
 ## License
 
 [MIT](https://github.com/gillchristian/remote-data-ts/blob/master/LICENSE) ©

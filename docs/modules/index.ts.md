@@ -12,6 +12,9 @@ Type to model asynchronous operations data and the statuses it can be in.
 type RemoteData<E, A> = NotAsked | Loading | Success<A> | Failure<E>;
 ```
 
+For examples check
+[github.com/gillchristian/remote-data-ts/examples/index.ts](https://github.com/gillchristian/remote-data-ts/examples/index.ts).
+
 Added in v3.0.0
 
 ---

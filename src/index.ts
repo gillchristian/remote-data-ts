@@ -5,6 +5,9 @@
  * type RemoteData<E, A> = NotAsked | Loading | Success<A> | Failure<E>;
  * ```
  *
+ * For examples check
+ * [github.com/gillchristian/remote-data-ts/examples/index.ts](https://github.com/gillchristian/remote-data-ts/examples/index.ts).
+ *
  * @since 3.0.0
  */
 import { Alt2 } from 'fp-ts/Alt';
