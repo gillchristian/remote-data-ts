@@ -26,6 +26,7 @@
     "watch": "tsc -w --noEmit",
     "prerelease": "yarn build",
     "fmt": "prettier  --write '**/*.{ts,json,md}'",
+    "fmt:docs": "prettier  --write 'docs/**/*.{md}'",
     "fmt:changed": "pretty-quick",
     "fmt:check": "prettier  --check '**/*.{ts,json,md}'",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx --max-warnings 0",

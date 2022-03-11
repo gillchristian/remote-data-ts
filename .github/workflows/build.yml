@@ -30,6 +30,7 @@ jobs:
       - name: Check docs
         run: |
           yarn docs
+          yarn fmt:docs
           ./scripts/docs-up-to-date.sh
       - name: Tests
         run: yarn test
