@@ -77,8 +77,3 @@ const App: SFC = () => {
 
 render(<App />, document.getElementById('root'));
 ```
-
-## License
-
-[MIT](https://github.com/gillchristian/remote-data-ts/blob/master/LICENSE) ©
-2022 Christian Gill
