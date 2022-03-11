@@ -1,0 +1,22 @@
+remote_theme: pmarsceill/just-the-docs
+
+# Enable or disable the site search
+search_enabled: true
+
+# Aux links for the upper right navigation
+aux_links:
+  'remote-data-ts on GitHub':
+    - ''
+
+remote_theme: pmarsceill/just-the-docs
+
+search_enabled: true
+
+# Aux links for the upper right navigation
+aux_links:
+  "Docs":
+    - "//gillchristian.github.io/remote-data-ts/"
+  "API Reference":
+    - "//gillchristian.github.io/remote-data-ts/modules/"
+  'GitHub':
+    - 'https://gillchristian.github.io/remote-data-ts'

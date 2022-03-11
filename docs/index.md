@@ -1,21 +1,14 @@
-<h1 align="center">remote-data-ts</h1>
+---
+title: Home
+nav_order: 1
+---
 
-[![Test](https://github.com/gillchristian/remote-data-ts/actions/workflows/build.yml/badge.svg?branch=master)](https://github.com/gillchristian/remote-data-ts/actions/workflows/build.yml)
+<h1 align="center">remote-data-ts</h1>
 
 Type to model asynchronous operations data and the statuses it can be in.
 
 Inspired by Elm's
 [krisajenkins/remotedata](https://package.elm-lang.org/packages/krisajenkins/remotedata/latest/RemoteData).
-
-## Install
-
-```
-yarn add fp-ts remote-data-ts
-
-npm i fp-ts remote-data-ts
-```
-
-Note `fp-ts` is a peer dependency.
 
 ## Usage
 

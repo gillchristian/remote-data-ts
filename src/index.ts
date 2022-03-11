@@ -1,21 +1,31 @@
 /**
+ * Type to model asynchronous operations data and the statuses it can be in.
+ *
+ * ```ts
+ * type RemoteData<E, A> = NotAsked | Loading | Success<A> | Failure<E>;
+ * ```
+ *
  * @since 3.0.0
  */
 import { Alt2 } from 'fp-ts/Alt';
 import { Applicative2, Applicative as ApplicativeHKT } from 'fp-ts/Applicative';
-import { Apply2 } from 'fp-ts/Apply';
+import {
+  Apply2,
+  apFirst as apFirst_,
+  apSecond as apSecond_,
+  apS as apS_,
+} from 'fp-ts/Apply';
 import { Bifunctor2 } from 'fp-ts/Bifunctor';
-import { Chain2 } from 'fp-ts/Chain';
+import { Chain2, bind as bind_, chainFirst as chainFirst_ } from 'fp-ts/Chain';
 import { Eq } from 'fp-ts/Eq';
 import { Ord } from 'fp-ts/Ord';
 import { Foldable2 } from 'fp-ts/Foldable';
-import { Functor2 } from 'fp-ts/Functor';
+import { Functor2, bindTo as bindTo_, flap as flap_ } from 'fp-ts/Functor';
 import { HKT } from 'fp-ts/HKT';
 import { Monad2 } from 'fp-ts/Monad';
 import { MonadThrow2 } from 'fp-ts/MonadThrow';
 import { Monoid } from 'fp-ts/Monoid';
 import { PipeableTraverse2, Traversable2 } from 'fp-ts/Traversable';
-import { pipeable } from 'fp-ts/pipeable';
 import {
   pipe,
   flow,
@@ -26,9 +36,16 @@ import {
 } from 'fp-ts/function';
 import * as O from 'fp-ts/Option';
 import * as E from 'fp-ts/Either';
+import {
+  filterOrElse as filterOrElse_,
+  FromEither2,
+  fromOption as fromOption_,
+  fromPredicate as fromPredicate_,
+} from 'fp-ts/FromEither';
 
 /**
  * @since 3.0.0
+ * @category Model
  */
 export interface NotAsked {
   readonly tag: 'NotAsked';
@@ -36,6 +53,7 @@ export interface NotAsked {
 
 /**
  * @since 3.0.0
+ * @category Model
  */
 export interface Loading {
   readonly tag: 'Loading';
@@ -43,6 +61,7 @@ export interface Loading {
 
 /**
  * @since 3.0.0
+ * @category Model
  */
 export interface Success<A = unknown> {
   readonly tag: 'Success';
@@ -51,6 +70,7 @@ export interface Success<A = unknown> {
 
 /**
  * @since 3.0.0
+ * @category Model
  */
 export interface Failure<E = unknown> {
   readonly tag: 'Failure';
@@ -59,6 +79,7 @@ export interface Failure<E = unknown> {
 
 /**
  * @since 3.0.0
+ * @category Model
  */
 export type RemoteData<E = unknown, A = unknown> =
   | NotAsked
@@ -68,16 +89,19 @@ export type RemoteData<E = unknown, A = unknown> =
 
 /**
  * @since 3.0.0
+ * @category Constructors
  */
 export const notAsked: RemoteData<never, never> = { tag: 'NotAsked' };
 
 /**
  * @since 3.0.0
+ * @category Constructors
  */
 export const loading: RemoteData<never, never> = { tag: 'Loading' };
 
 /**
  * @since 3.0.0
+ * @category Constructors
  */
 export const failure = <E = unknown>(error: E): RemoteData<E, never> => ({
   tag: 'Failure',
@@ -86,6 +110,7 @@ export const failure = <E = unknown>(error: E): RemoteData<E, never> => ({
 
 /**
  * @since 3.0.0
+ * @category Constructors
  */
 export const success = <D = unknown>(data: D): RemoteData<never, D> => ({
   tag: 'Success',
@@ -94,23 +119,27 @@ export const success = <D = unknown>(data: D): RemoteData<never, D> => ({
 
 /**
  * @since 3.0.0
+ * @category Constructors
  */
 export const of = success;
 
 /**
  * @since 3.0.0
+ * @category Refinements
  */
 export const isNotAsked = (rd: RemoteData<unknown, unknown>): rd is NotAsked =>
   rd.tag === 'NotAsked';
 
 /**
  * @since 3.0.0
+ * @category Refinements
  */
 export const isLoading = (rd: RemoteData<unknown, unknown>): rd is Loading =>
   rd.tag === 'Loading';
 
 /**
  * @since 3.0.0
+ * @category Refinements
  */
 export const isSuccess = (
   rd: RemoteData<unknown, unknown>,
@@ -118,6 +147,7 @@ export const isSuccess = (
 
 /**
  * @since 3.0.0
+ * @category Refinements
  */
 export const isFailure = (
   rd: RemoteData<unknown, unknown>,
@@ -125,6 +155,7 @@ export const isFailure = (
 
 /**
  * @since 3.0.0
+ * @category Destructors
  */
 export const match =
   <E = unknown, D = unknown, R = unknown>(matcher: {
@@ -146,15 +177,15 @@ export const match =
     return matcher.success(rd.data);
   };
 
-// TypeClasses
-
 /**
  * @since 3.0.0
+ * @category Instances
  */
 export const URI = 'RemoteData';
 
 /**
  * @since 3.0.0
+ * @category Instances
  */
 export type URI = typeof URI;
 
@@ -166,125 +197,184 @@ declare module 'fp-ts/lib/HKT' {
 
 /**
  * @since 3.0.0
+ * @category Instance operations
  */
-export const Functor: Functor2<URI> = {
-  URI,
-  map: <E, A, B>(rda: RemoteData<E, A>, f: (a: A) => B): RemoteData<E, B> =>
+export const map =
+  <A, B>(f: (a: A) => B) =>
+  <E>(rda: RemoteData<E, A>): RemoteData<E, B> =>
     match<E, A, RemoteData<E, B>>({
       notAsked: () => notAsked,
       loading: () => loading,
       failure,
       success: (data) => success(f(data)),
-    })(rda),
+    })(rda);
+
+/**
+ * @since 3.0.0
+ * @category Instances
+ */
+export const Functor: Functor2<URI> = {
+  URI,
+  map: (fa, f) => pipe(fa, map(f)),
 };
 
 /**
  * @since 3.0.0
+ * @category Instance operations
  */
-export const Apply: Apply2<URI> = {
-  ...Functor,
-  ap: <E, A, B>(
-    rdf: RemoteData<E, (a: A) => B>,
-    rda: RemoteData<E, A>,
-  ): RemoteData<E, B> =>
+export const ap =
+  <E, A>(rda: RemoteData<E, A>) =>
+  <B>(rdfab: RemoteData<E, (a: A) => B>): RemoteData<E, B> =>
     match<E, (a: A) => B, RemoteData<E, B>>({
       notAsked: () => notAsked,
       loading: () => loading,
       failure,
       success: (f) => Functor.map(rda, f),
-    })(rdf),
+    })(rdfab);
+
+/**
+ * @since 3.0.0
+ * @category Instances
+ */
+export const Apply: Apply2<URI> = {
+  ...Functor,
+  ap: (fab, fa) => pipe(fab, ap(fa)),
 };
 
 /**
  * @since 3.0.0
+ * @category Instances
  */
 export const Applicative: Applicative2<URI> = { ...Apply, of };
 
 /**
  * @since 3.0.0
+ * @category Instance operations
  */
-export const Chain: Chain2<URI> = {
-  ...Apply,
-  chain: <E, A, B>(
-    rda: RemoteData<E, A>,
-    f: (a: A) => RemoteData<E, B>,
-  ): RemoteData<E, B> =>
+export const chain =
+  <E, A, B>(f: (a: A) => RemoteData<E, B>) =>
+  (rda: RemoteData<E, A>): RemoteData<E, B> =>
     match<E, A, RemoteData<E, B>>({
       notAsked: () => notAsked,
       loading: () => loading,
       failure,
       success: (a) => f(a),
-    })(rda),
+    })(rda);
+
+/**
+ * @since 3.0.0
+ * @category Instances
+ */
+export const Chain: Chain2<URI> = {
+  ...Apply,
+  chain: (fa, f) => pipe(fa, chain(f)),
 };
 
 /**
  * @since 3.0.0
+ * @category Instances
  */
 export const Monad: Monad2<URI> = { ...Chain, ...Applicative };
 
 /**
  * @since 3.0.0
+ * @category Instances
  */
 export const MonadThrow: MonadThrow2<URI> = { ...Monad, throwError: failure };
 
 /**
  * @since 3.0.0
+ * @category Instance operations
  */
-export const Bifunctor: Bifunctor2<URI> = {
-  URI,
-  bimap: <E, A, G, B>(
-    rdea: RemoteData<E, A>,
-    f: (e: E) => G,
-    g: (a: A) => B,
-  ): RemoteData<G, B> =>
+export const bimap =
+  <E, A, G, B>(f: (e: E) => G, g: (a: A) => B) =>
+  (rdea: RemoteData<E, A>): RemoteData<G, B> =>
     match<E, A, RemoteData<G, B>>({
       notAsked: () => notAsked,
       loading: () => loading,
       failure: (error) => failure(f(error)),
       success: (data) => success(g(data)),
-    })(rdea),
-  mapLeft: <E, A, G>(rda: RemoteData<E, A>, f: (a: E) => G): RemoteData<G, A> =>
+    })(rdea);
+
+/**
+ * @since 3.0.0
+ * @category Instance operations
+ */
+export const mapLeft =
+  <E, G>(f: (a: E) => G) =>
+  <A>(rda: RemoteData<E, A>): RemoteData<G, A> =>
     match<E, A, RemoteData<G, A>>({
       notAsked: () => notAsked,
       loading: () => loading,
       failure: (error) => failure(f(error)),
       success,
-    })(rda),
-};
-
-const reduce = <E, A, B>(
-  rda: RemoteData<E, A>,
-  b: B,
-  f: (b: B, a: A) => B,
-): B =>
-  match<E, A, B>({
-    notAsked: () => b,
-    loading: () => b,
-    failure: () => b,
-    success: (data) => f(b, data),
-  })(rda);
+    })(rda);
 
 /**
  * @since 3.0.0
+ * @category Instances
+ */
+export const Bifunctor: Bifunctor2<URI> = {
+  URI,
+  bimap: (fea, f, g) => pipe(fea, bimap(f, g)),
+  mapLeft: (fea, f) => pipe(fea, mapLeft(f)),
+};
+
+/**
+ * @since 3.0.0
+ * @category Instance operations
+ */
+export const reduce =
+  <E, A, B>(b: B, f: (b: B, a: A) => B) =>
+  (rda: RemoteData<E, A>): B =>
+    match<E, A, B>({
+      notAsked: () => b,
+      loading: () => b,
+      failure: () => b,
+      success: (data) => f(b, data),
+    })(rda);
+
+/**
+ * @since 3.0.0
+ * @category Instance operations
+ */
+export const reduceRight =
+  <E, A, B>(b: B, f: (a: A, b: B) => B) =>
+  (rda: RemoteData<E, A>) =>
+    pipe(
+      rda,
+      reduce(b, (b_, a_) => f(a_, b_)),
+    );
+
+/**
+ * @since 3.0.0
+ * @category Instance operations
+ */
+export const foldMap =
+  <M>(M: Monoid<M>) =>
+  <A>(f: (a: A) => M) =>
+  <E>(rda: RemoteData<E, A>): M =>
+    match<E, A, M>({
+      notAsked: () => M.empty,
+      loading: () => M.empty,
+      failure: () => M.empty,
+      success: (data) => f(data),
+    })(rda);
+
+/**
+ * @since 3.0.0
+ * @category Instances
  */
 export const Foldable: Foldable2<URI> = {
   URI,
-  reduce,
-  reduceRight: <E, A, B>(rda: RemoteData<E, A>, b: B, f: (a: A, b: B) => B) =>
-    reduce(rda, b, (b_, a_) => f(a_, b_)),
-  foldMap:
-    <M>(M: Monoid<M>) =>
-    <E, A>(rda: RemoteData<E, A>, f: (a: A) => M): M =>
-      match<E, A, M>({
-        notAsked: () => M.empty,
-        loading: () => M.empty,
-        failure: () => M.empty,
-        success: (data) => f(data),
-      })(rda),
+  reduce: (fa, b, f) => pipe(fa, reduce(b, f)),
+  reduceRight: (fa, b, f) => pipe(fa, reduceRight(b, f)),
+  foldMap: (M) => (fa, f) => pipe(fa, foldMap(M)(f)),
 };
 
 /**
  * @since 3.0.0
+ * @category Instance operations
  */
 export const sequence: Traversable2<URI>['sequence'] =
   <F>(F: ApplicativeHKT<F>) =>
@@ -298,6 +388,7 @@ export const sequence: Traversable2<URI>['sequence'] =
 
 /**
  * @since 3.0.0
+ * @category Instance operations
  */
 export const traverse: PipeableTraverse2<URI> =
   <F>(F: ApplicativeHKT<F>) =>
@@ -312,6 +403,7 @@ export const traverse: PipeableTraverse2<URI> =
 
 /**
  * @since 3.0.0
+ * @category Instances
  */
 export const Traversable: Traversable2<URI> = {
   ...Functor,
@@ -319,15 +411,13 @@ export const Traversable: Traversable2<URI> = {
   sequence,
   traverse:
     <F>(F: ApplicativeHKT<F>) =>
-    <E, A, B>(
-      ta: RemoteData<E, A>,
-      f: (a: A) => HKT<F, B>,
-    ): HKT<F, RemoteData<E, B>> =>
-      traverse(F)(f)(ta),
+    <E, A, B>(ta: RemoteData<E, A>, f: (a: A) => HKT<F, B>) =>
+      pipe(ta, traverse(F)(f)),
 };
 
 /**
  * @since 3.0.0
+ * @category Instance operations
  */
 export const alt =
   <E, A>(that: Lazy<RemoteData<E, A>>) =>
@@ -336,6 +426,7 @@ export const alt =
 
 /**
  * @since 3.0.0
+ * @category Instances
  */
 export const Alt: Alt2<URI> = {
   ...Functor,
@@ -344,35 +435,91 @@ export const Alt: Alt2<URI> = {
 
 /**
  * @since 3.0.0
+ * @category Instance operations
  */
-export const remoteData = {
-  ...MonadThrow,
-  ...Bifunctor,
-  ...Foldable,
-  ...Traversable,
+const fromEither = <E, A>(e: E.Either<E, A>): RemoteData<E, A> =>
+  pipe(e, E.match<E, A, RemoteData<E, A>>(failure, success));
+
+/**
+ * @since 3.0.0
+ * @category Instances
+ */
+export const FromEither: FromEither2<URI> = {
+  URI,
+  fromEither,
 };
 
 /**
  * @since 3.0.0
+ * @category Combinators
  */
-export const {
-  ap,
-  apFirst,
-  apSecond,
-  bimap,
-  chain,
-  chainFirst,
-  filterOrElse,
-  flatten,
-  fromEither,
-  fromOption,
-  fromPredicate,
-  map,
-  mapLeft,
-} = pipeable(remoteData);
+export const apFirst = apFirst_(Apply);
 
 /**
  * @since 3.0.0
+ * @category Combinators
+ */
+export const apSecond = apSecond_(Apply);
+
+/**
+ * @since 3.0.0
+ * @category Combinators
+ */
+export const apS = apS_(Apply);
+
+/**
+ * @since 3.0.0
+ * @category Combinators
+ */
+export const chainFirst = chainFirst_(Chain);
+
+/**
+ * @since 3.0.0
+ * @category Combinators
+ */
+export const bind = bind_(Chain);
+
+/**
+ * @since 3.0.0
+ * @category Combinators
+ */
+export const filterOrElse = filterOrElse_(FromEither, Chain);
+
+/**
+ * @since 3.0.0
+ * @category Natural transformations
+ */
+export const fromOption = fromOption_(FromEither);
+
+/**
+ * @since 3.0.0
+ * @category Constructors
+ */
+export const fromPredicate = fromPredicate_(FromEither);
+
+/**
+ * @since 3.0.0
+ * @category Combinators
+ */
+export const bindTo = bindTo_(Functor);
+
+/**
+ * @since 3.0.0
+ * @category Combinators
+ */
+export const flap = flap_(Functor);
+
+/**
+ * @since 3.0.0
+ * @category Combinators
+ */
+export const flatten: <E, A>(
+  mma: RemoteData<E, RemoteData<E, A>>,
+) => RemoteData<E, A> = chain(identity);
+
+/**
+ * @since 3.0.0
+ * @category Instances
  */
 export function getEq<E, A>(eqErr: Eq<E>, eqA: Eq<A>): Eq<RemoteData<E, A>> {
   return {
@@ -391,6 +538,7 @@ export function getEq<E, A>(eqErr: Eq<E>, eqA: Eq<A>): Eq<RemoteData<E, A>> {
 
 /**
  * @since 3.0.0
+ * @category Instances
  */
 export function getOrd<E, A>(
   ordErr: Ord<E>,
@@ -422,6 +570,7 @@ export function getOrd<E, A>(
 
 /**
  * @since 3.0.0
+ * @category Destructors
  */
 export const getOrElse =
   <E = unknown, A = unknown>(
@@ -439,6 +588,7 @@ export const getOrElse =
 
 /**
  * @since 3.0.0
+ * @category Destructors
  */
 export const toNullable = <E = unknown, A = unknown>(
   rda: RemoteData<E, A>,
@@ -452,11 +602,13 @@ export const toNullable = <E = unknown, A = unknown>(
 
 /**
  * @since 3.0.0
+ * @category Natural transformations
  */
 export const toOption = flow(toNullable, O.fromNullable);
 
 /**
  * @since 3.0.0
+ * @category Natural transformations
  */
 export const toEither =
   <E = unknown, L = unknown>(
@@ -474,6 +626,7 @@ export const toEither =
 
 /**
  * @since 3.0.0
+ * @category Combinators
  */
 export const swap = <E = unknown, A = unknown>(
   rda: RemoteData<E, A>,
@@ -487,19 +640,13 @@ export const swap = <E = unknown, A = unknown>(
 
 /**
  * @since 3.0.0
+ * @category Combinators
  */
-export const mapFailure =
-  <E = unknown, G = unknown, A = unknown>(f: (error: E) => G) =>
-  (rda: RemoteData<E, A>): RemoteData<G, A> =>
-    match<E, A, RemoteData<G, A>>({
-      notAsked: () => notAsked,
-      loading: () => loading,
-      success,
-      failure: (error) => failure(f(error)),
-    })(rda);
+export const mapFailure = mapLeft;
 
 /**
  * @since 3.0.0
+ * @category Utils
  */
 export const exists =
   <A = unknown>(predicate: Predicate<A>) =>
@@ -513,13 +660,12 @@ export const exists =
 
 /**
  * @since 3.0.0
+ * @category Utils
  */
 export const elem =
   <A = unknown>(E: Eq<A>) =>
   <E = unknown>(a: A, rda: RemoteData<E, A>): boolean =>
-    match<E, A, boolean>({
-      notAsked: () => false,
-      loading: () => false,
-      failure: () => false,
-      success: (b) => E.equals(a, b),
-    })(rda);
+    pipe(
+      rda,
+      exists((b) => E.equals(a, b)),
+    );
