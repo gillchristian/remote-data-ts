@@ -9,7 +9,7 @@ parent: Modules
 Type to model asynchronous operations data and the statuses it can be in.
 
 ```ts
-type RemoteData<E, A> = NotAsked | Loading | Success<A> | Failure<E>
+type RemoteData<E, A> = NotAsked | Loading | Success<A> | Failure<E>;
 ```
 
 Added in v3.0.0
@@ -97,7 +97,9 @@ Added in v3.0.0
 **Signature**
 
 ```ts
-export declare const apFirst: <E, B>(second: RemoteData<E, B>) => <A>(first: RemoteData<E, A>) => RemoteData<E, A>
+export declare const apFirst: <E, B>(
+  second: RemoteData<E, B>,
+) => <A>(first: RemoteData<E, A>) => RemoteData<E, A>;
 ```
 
 Added in v3.0.0
@@ -109,8 +111,13 @@ Added in v3.0.0
 ```ts
 export declare const apS: <N, A, E, B>(
   name: Exclude<N, keyof A>,
-  fb: RemoteData<E, B>
-) => (fa: RemoteData<E, A>) => RemoteData<E, { readonly [K in N | keyof A]: K extends keyof A ? A[K] : B }>
+  fb: RemoteData<E, B>,
+) => (
+  fa: RemoteData<E, A>,
+) => RemoteData<
+  E,
+  { readonly [K in N | keyof A]: K extends keyof A ? A[K] : B }
+>;
 ```
 
 Added in v3.0.0
@@ -120,7 +127,9 @@ Added in v3.0.0
 **Signature**
 
 ```ts
-export declare const apSecond: <E, B>(second: RemoteData<E, B>) => <A>(first: RemoteData<E, A>) => RemoteData<E, B>
+export declare const apSecond: <E, B>(
+  second: RemoteData<E, B>,
+) => <A>(first: RemoteData<E, A>) => RemoteData<E, B>;
 ```
 
 Added in v3.0.0
@@ -132,8 +141,13 @@ Added in v3.0.0
 ```ts
 export declare const bind: <N, A, E, B>(
   name: Exclude<N, keyof A>,
-  f: (a: A) => RemoteData<E, B>
-) => (ma: RemoteData<E, A>) => RemoteData<E, { readonly [K in N | keyof A]: K extends keyof A ? A[K] : B }>
+  f: (a: A) => RemoteData<E, B>,
+) => (
+  ma: RemoteData<E, A>,
+) => RemoteData<
+  E,
+  { readonly [K in N | keyof A]: K extends keyof A ? A[K] : B }
+>;
 ```
 
 Added in v3.0.0
@@ -143,7 +157,9 @@ Added in v3.0.0
 **Signature**
 
 ```ts
-export declare const bindTo: <N>(name: N) => <E, A>(fa: RemoteData<E, A>) => RemoteData<E, { readonly [K in N]: A }>
+export declare const bindTo: <N>(
+  name: N,
+) => <E, A>(fa: RemoteData<E, A>) => RemoteData<E, { readonly [K in N]: A }>;
 ```
 
 Added in v3.0.0
@@ -154,8 +170,8 @@ Added in v3.0.0
 
 ```ts
 export declare const chainFirst: <A, E, B>(
-  f: (a: A) => RemoteData<E, B>
-) => (first: RemoteData<E, A>) => RemoteData<E, A>
+  f: (a: A) => RemoteData<E, B>,
+) => (first: RemoteData<E, A>) => RemoteData<E, A>;
 ```
 
 Added in v3.0.0
@@ -166,10 +182,16 @@ Added in v3.0.0
 
 ```ts
 export declare const filterOrElse: {
-  <A, B, E>(refinement: Refinement<A, B>, onFalse: (a: A) => E): (ma: RemoteData<E, A>) => RemoteData<E, B>
-  <A, E>(predicate: Predicate<A>, onFalse: (a: A) => E): <B>(mb: RemoteData<E, B>) => RemoteData<E, B>
-  <A, E>(predicate: Predicate<A>, onFalse: (a: A) => E): (ma: RemoteData<E, A>) => RemoteData<E, A>
-}
+  <A, B, E>(refinement: Refinement<A, B>, onFalse: (a: A) => E): (
+    ma: RemoteData<E, A>,
+  ) => RemoteData<E, B>;
+  <A, E>(predicate: Predicate<A>, onFalse: (a: A) => E): <B>(
+    mb: RemoteData<E, B>,
+  ) => RemoteData<E, B>;
+  <A, E>(predicate: Predicate<A>, onFalse: (a: A) => E): (
+    ma: RemoteData<E, A>,
+  ) => RemoteData<E, A>;
+};
 ```
 
 Added in v3.0.0
@@ -179,7 +201,9 @@ Added in v3.0.0
 **Signature**
 
 ```ts
-export declare const flap: <A>(a: A) => <E, B>(fab: RemoteData<E, (a: A) => B>) => RemoteData<E, B>
+export declare const flap: <A>(
+  a: A,
+) => <E, B>(fab: RemoteData<E, (a: A) => B>) => RemoteData<E, B>;
 ```
 
 Added in v3.0.0
@@ -189,7 +213,9 @@ Added in v3.0.0
 **Signature**
 
 ```ts
-export declare const flatten: <E, A>(mma: RemoteData<E, RemoteData<E, A>>) => RemoteData<E, A>
+export declare const flatten: <E, A>(
+  mma: RemoteData<E, RemoteData<E, A>>,
+) => RemoteData<E, A>;
 ```
 
 Added in v3.0.0
@@ -199,7 +225,9 @@ Added in v3.0.0
 **Signature**
 
 ```ts
-export declare const mapFailure: <E, G>(f: (a: E) => G) => <A>(rda: RemoteData<E, A>) => RemoteData<G, A>
+export declare const mapFailure: <E, G>(
+  f: (a: E) => G,
+) => <A>(rda: RemoteData<E, A>) => RemoteData<G, A>;
 ```
 
 Added in v3.0.0
@@ -209,7 +237,9 @@ Added in v3.0.0
 **Signature**
 
 ```ts
-export declare const swap: <E = unknown, A = unknown>(rda: RemoteData<E, A>) => RemoteData<A, E>
+export declare const swap: <E = unknown, A = unknown>(
+  rda: RemoteData<E, A>,
+) => RemoteData<A, E>;
 ```
 
 Added in v3.0.0
@@ -221,7 +251,7 @@ Added in v3.0.0
 **Signature**
 
 ```ts
-export declare const failure: <E = unknown>(error: E) => RemoteData<E, never>
+export declare const failure: <E = unknown>(error: E) => RemoteData<E, never>;
 ```
 
 Added in v3.0.0
@@ -232,10 +262,16 @@ Added in v3.0.0
 
 ```ts
 export declare const fromPredicate: {
-  <A, B, E>(refinement: Refinement<A, B>, onFalse: (a: A) => E): (a: A) => RemoteData<E, B>
-  <A, E>(predicate: Predicate<A>, onFalse: (a: A) => E): <B>(b: B) => RemoteData<E, B>
-  <A, E>(predicate: Predicate<A>, onFalse: (a: A) => E): (a: A) => RemoteData<E, A>
-}
+  <A, B, E>(refinement: Refinement<A, B>, onFalse: (a: A) => E): (
+    a: A,
+  ) => RemoteData<E, B>;
+  <A, E>(predicate: Predicate<A>, onFalse: (a: A) => E): <B>(
+    b: B,
+  ) => RemoteData<E, B>;
+  <A, E>(predicate: Predicate<A>, onFalse: (a: A) => E): (
+    a: A,
+  ) => RemoteData<E, A>;
+};
 ```
 
 Added in v3.0.0
@@ -245,7 +281,7 @@ Added in v3.0.0
 **Signature**
 
 ```ts
-export declare const loading: RemoteData<never, never>
+export declare const loading: RemoteData<never, never>;
 ```
 
 Added in v3.0.0
@@ -255,7 +291,7 @@ Added in v3.0.0
 **Signature**
 
 ```ts
-export declare const notAsked: RemoteData<never, never>
+export declare const notAsked: RemoteData<never, never>;
 ```
 
 Added in v3.0.0
@@ -265,7 +301,7 @@ Added in v3.0.0
 **Signature**
 
 ```ts
-export declare const of: <D = unknown>(data: D) => RemoteData<never, D>
+export declare const of: <D = unknown>(data: D) => RemoteData<never, D>;
 ```
 
 Added in v3.0.0
@@ -275,7 +311,7 @@ Added in v3.0.0
 **Signature**
 
 ```ts
-export declare const success: <D = unknown>(data: D) => RemoteData<never, D>
+export declare const success: <D = unknown>(data: D) => RemoteData<never, D>;
 ```
 
 Added in v3.0.0
@@ -290,8 +326,8 @@ Added in v3.0.0
 export declare const getOrElse: <E = unknown, A = unknown>(
   onNotAsked: () => A,
   onLoading: () => A,
-  onFailure: (err: E) => A
-) => (rda: RemoteData<E, A>) => A
+  onFailure: (err: E) => A,
+) => (rda: RemoteData<E, A>) => A;
 ```
 
 Added in v3.0.0
@@ -302,11 +338,11 @@ Added in v3.0.0
 
 ```ts
 export declare const match: <E = unknown, D = unknown, R = unknown>(matcher: {
-  notAsked: () => R
-  loading: () => R
-  success: (data: D) => R
-  failure: (error: E) => R
-}) => (rd: RemoteData<E, D>) => R
+  notAsked: () => R;
+  loading: () => R;
+  success: (data: D) => R;
+  failure: (error: E) => R;
+}) => (rd: RemoteData<E, D>) => R;
 ```
 
 Added in v3.0.0
@@ -316,7 +352,9 @@ Added in v3.0.0
 **Signature**
 
 ```ts
-export declare const toNullable: <E = unknown, A = unknown>(rda: RemoteData<E, A>) => A | null
+export declare const toNullable: <E = unknown, A = unknown>(
+  rda: RemoteData<E, A>,
+) => A | null;
 ```
 
 Added in v3.0.0
@@ -328,7 +366,9 @@ Added in v3.0.0
 **Signature**
 
 ```ts
-export declare const alt: <E, A>(that: Lazy<RemoteData<E, A>>) => (fa: RemoteData<E, A>) => RemoteData<E, A>
+export declare const alt: <E, A>(
+  that: Lazy<RemoteData<E, A>>,
+) => (fa: RemoteData<E, A>) => RemoteData<E, A>;
 ```
 
 Added in v3.0.0
@@ -338,7 +378,9 @@ Added in v3.0.0
 **Signature**
 
 ```ts
-export declare const ap: <E, A>(rda: RemoteData<E, A>) => <B>(rdfab: RemoteData<E, (a: A) => B>) => RemoteData<E, B>
+export declare const ap: <E, A>(
+  rda: RemoteData<E, A>,
+) => <B>(rdfab: RemoteData<E, (a: A) => B>) => RemoteData<E, B>;
 ```
 
 Added in v3.0.0
@@ -348,7 +390,10 @@ Added in v3.0.0
 **Signature**
 
 ```ts
-export declare const bimap: <E, A, G, B>(f: (e: E) => G, g: (a: A) => B) => (rdea: RemoteData<E, A>) => RemoteData<G, B>
+export declare const bimap: <E, A, G, B>(
+  f: (e: E) => G,
+  g: (a: A) => B,
+) => (rdea: RemoteData<E, A>) => RemoteData<G, B>;
 ```
 
 Added in v3.0.0
@@ -358,7 +403,9 @@ Added in v3.0.0
 **Signature**
 
 ```ts
-export declare const chain: <E, A, B>(f: (a: A) => RemoteData<E, B>) => (rda: RemoteData<E, A>) => RemoteData<E, B>
+export declare const chain: <E, A, B>(
+  f: (a: A) => RemoteData<E, B>,
+) => (rda: RemoteData<E, A>) => RemoteData<E, B>;
 ```
 
 Added in v3.0.0
@@ -368,7 +415,9 @@ Added in v3.0.0
 **Signature**
 
 ```ts
-export declare const foldMap: <M>(M: Monoid<M>) => <A>(f: (a: A) => M) => <E>(rda: RemoteData<E, A>) => M
+export declare const foldMap: <M>(
+  M: Monoid<M>,
+) => <A>(f: (a: A) => M) => <E>(rda: RemoteData<E, A>) => M;
 ```
 
 Added in v3.0.0
@@ -378,7 +427,9 @@ Added in v3.0.0
 **Signature**
 
 ```ts
-export declare const map: <A, B>(f: (a: A) => B) => <E>(rda: RemoteData<E, A>) => RemoteData<E, B>
+export declare const map: <A, B>(
+  f: (a: A) => B,
+) => <E>(rda: RemoteData<E, A>) => RemoteData<E, B>;
 ```
 
 Added in v3.0.0
@@ -388,7 +439,9 @@ Added in v3.0.0
 **Signature**
 
 ```ts
-export declare const mapLeft: <E, G>(f: (a: E) => G) => <A>(rda: RemoteData<E, A>) => RemoteData<G, A>
+export declare const mapLeft: <E, G>(
+  f: (a: E) => G,
+) => <A>(rda: RemoteData<E, A>) => RemoteData<G, A>;
 ```
 
 Added in v3.0.0
@@ -398,7 +451,10 @@ Added in v3.0.0
 **Signature**
 
 ```ts
-export declare const reduce: <E, A, B>(b: B, f: (b: B, a: A) => B) => (rda: RemoteData<E, A>) => B
+export declare const reduce: <E, A, B>(
+  b: B,
+  f: (b: B, a: A) => B,
+) => (rda: RemoteData<E, A>) => B;
 ```
 
 Added in v3.0.0
@@ -408,7 +464,10 @@ Added in v3.0.0
 **Signature**
 
 ```ts
-export declare const reduceRight: <E, A, B>(b: B, f: (a: A, b: B) => B) => (rda: RemoteData<E, A>) => B
+export declare const reduceRight: <E, A, B>(
+  b: B,
+  f: (a: A, b: B) => B,
+) => (rda: RemoteData<E, A>) => B;
 ```
 
 Added in v3.0.0
@@ -418,7 +477,7 @@ Added in v3.0.0
 **Signature**
 
 ```ts
-export declare const sequence: Sequence2<'RemoteData'>
+export declare const sequence: Sequence2<'RemoteData'>;
 ```
 
 Added in v3.0.0
@@ -428,7 +487,7 @@ Added in v3.0.0
 **Signature**
 
 ```ts
-export declare const traverse: PipeableTraverse2<'RemoteData'>
+export declare const traverse: PipeableTraverse2<'RemoteData'>;
 ```
 
 Added in v3.0.0
@@ -440,7 +499,7 @@ Added in v3.0.0
 **Signature**
 
 ```ts
-export declare const Alt: Alt2<'RemoteData'>
+export declare const Alt: Alt2<'RemoteData'>;
 ```
 
 Added in v3.0.0
@@ -450,7 +509,7 @@ Added in v3.0.0
 **Signature**
 
 ```ts
-export declare const Applicative: Applicative2<'RemoteData'>
+export declare const Applicative: Applicative2<'RemoteData'>;
 ```
 
 Added in v3.0.0
@@ -460,7 +519,7 @@ Added in v3.0.0
 **Signature**
 
 ```ts
-export declare const Apply: Apply2<'RemoteData'>
+export declare const Apply: Apply2<'RemoteData'>;
 ```
 
 Added in v3.0.0
@@ -470,7 +529,7 @@ Added in v3.0.0
 **Signature**
 
 ```ts
-export declare const Bifunctor: Bifunctor2<'RemoteData'>
+export declare const Bifunctor: Bifunctor2<'RemoteData'>;
 ```
 
 Added in v3.0.0
@@ -480,7 +539,7 @@ Added in v3.0.0
 **Signature**
 
 ```ts
-export declare const Chain: Chain2<'RemoteData'>
+export declare const Chain: Chain2<'RemoteData'>;
 ```
 
 Added in v3.0.0
@@ -490,7 +549,7 @@ Added in v3.0.0
 **Signature**
 
 ```ts
-export declare const Foldable: Foldable2<'RemoteData'>
+export declare const Foldable: Foldable2<'RemoteData'>;
 ```
 
 Added in v3.0.0
@@ -500,7 +559,7 @@ Added in v3.0.0
 **Signature**
 
 ```ts
-export declare const FromEither: FromEither2<'RemoteData'>
+export declare const FromEither: FromEither2<'RemoteData'>;
 ```
 
 Added in v3.0.0
@@ -510,7 +569,7 @@ Added in v3.0.0
 **Signature**
 
 ```ts
-export declare const Functor: Functor2<'RemoteData'>
+export declare const Functor: Functor2<'RemoteData'>;
 ```
 
 Added in v3.0.0
@@ -520,7 +579,7 @@ Added in v3.0.0
 **Signature**
 
 ```ts
-export declare const Monad: Monad2<'RemoteData'>
+export declare const Monad: Monad2<'RemoteData'>;
 ```
 
 Added in v3.0.0
@@ -530,7 +589,7 @@ Added in v3.0.0
 **Signature**
 
 ```ts
-export declare const MonadThrow: MonadThrow2<'RemoteData'>
+export declare const MonadThrow: MonadThrow2<'RemoteData'>;
 ```
 
 Added in v3.0.0
@@ -540,7 +599,7 @@ Added in v3.0.0
 **Signature**
 
 ```ts
-export declare const Traversable: Traversable2<'RemoteData'>
+export declare const Traversable: Traversable2<'RemoteData'>;
 ```
 
 Added in v3.0.0
@@ -550,7 +609,7 @@ Added in v3.0.0
 **Signature**
 
 ```ts
-export declare const URI: 'RemoteData'
+export declare const URI: 'RemoteData';
 ```
 
 Added in v3.0.0
@@ -560,7 +619,7 @@ Added in v3.0.0
 **Signature**
 
 ```ts
-export type URI = typeof URI
+export type URI = typeof URI;
 ```
 
 Added in v3.0.0
@@ -570,7 +629,10 @@ Added in v3.0.0
 **Signature**
 
 ```ts
-export declare function getEq<E, A>(eqErr: Eq<E>, eqA: Eq<A>): Eq<RemoteData<E, A>>
+export declare function getEq<E, A>(
+  eqErr: Eq<E>,
+  eqA: Eq<A>,
+): Eq<RemoteData<E, A>>;
 ```
 
 Added in v3.0.0
@@ -580,7 +642,10 @@ Added in v3.0.0
 **Signature**
 
 ```ts
-export declare function getOrd<E, A>(ordErr: Ord<E>, ordA: Ord<A>): Ord<RemoteData<E, A>>
+export declare function getOrd<E, A>(
+  ordErr: Ord<E>,
+  ordA: Ord<A>,
+): Ord<RemoteData<E, A>>;
 ```
 
 Added in v3.0.0
@@ -593,8 +658,8 @@ Added in v3.0.0
 
 ```ts
 export interface Failure<E = unknown> {
-  readonly tag: 'Failure'
-  readonly error: E
+  readonly tag: 'Failure';
+  readonly error: E;
 }
 ```
 
@@ -606,7 +671,7 @@ Added in v3.0.0
 
 ```ts
 export interface Loading {
-  readonly tag: 'Loading'
+  readonly tag: 'Loading';
 }
 ```
 
@@ -618,7 +683,7 @@ Added in v3.0.0
 
 ```ts
 export interface NotAsked {
-  readonly tag: 'NotAsked'
+  readonly tag: 'NotAsked';
 }
 ```
 
@@ -629,7 +694,11 @@ Added in v3.0.0
 **Signature**
 
 ```ts
-export type RemoteData<E = unknown, A = unknown> = NotAsked | Loading | Failure<E> | Success<A>
+export type RemoteData<E = unknown, A = unknown> =
+  | NotAsked
+  | Loading
+  | Failure<E>
+  | Success<A>;
 ```
 
 Added in v3.0.0
@@ -640,8 +709,8 @@ Added in v3.0.0
 
 ```ts
 export interface Success<A = unknown> {
-  readonly tag: 'Success'
-  readonly data: A
+  readonly tag: 'Success';
+  readonly data: A;
 }
 ```
 
@@ -654,7 +723,9 @@ Added in v3.0.0
 **Signature**
 
 ```ts
-export declare const fromOption: <E>(onNone: Lazy<E>) => NaturalTransformation12C<'Option', 'RemoteData', E>
+export declare const fromOption: <E>(
+  onNone: Lazy<E>,
+) => NaturalTransformation12C<'Option', 'RemoteData', E>;
 ```
 
 Added in v3.0.0
@@ -667,8 +738,8 @@ Added in v3.0.0
 export declare const toEither: <E = unknown, L = unknown>(
   onNotAsked: () => L,
   onLoading: () => L,
-  onFailure: (err: E) => L
-) => <A = unknown>(rda: RemoteData<E, A>) => E.Either<L, A>
+  onFailure: (err: E) => L,
+) => <A = unknown>(rda: RemoteData<E, A>) => E.Either<L, A>;
 ```
 
 Added in v3.0.0
@@ -678,7 +749,9 @@ Added in v3.0.0
 **Signature**
 
 ```ts
-export declare const toOption: <E = unknown, A = unknown>(rda: RemoteData<E, A>) => O.Option<NonNullable<A>>
+export declare const toOption: <E = unknown, A = unknown>(
+  rda: RemoteData<E, A>,
+) => O.Option<NonNullable<A>>;
 ```
 
 Added in v3.0.0
@@ -690,7 +763,9 @@ Added in v3.0.0
 **Signature**
 
 ```ts
-export declare const isFailure: (rd: RemoteData<unknown, unknown>) => rd is Failure<unknown>
+export declare const isFailure: (
+  rd: RemoteData<unknown, unknown>,
+) => rd is Failure<unknown>;
 ```
 
 Added in v3.0.0
@@ -700,7 +775,9 @@ Added in v3.0.0
 **Signature**
 
 ```ts
-export declare const isLoading: (rd: RemoteData<unknown, unknown>) => rd is Loading
+export declare const isLoading: (
+  rd: RemoteData<unknown, unknown>,
+) => rd is Loading;
 ```
 
 Added in v3.0.0
@@ -710,7 +787,9 @@ Added in v3.0.0
 **Signature**
 
 ```ts
-export declare const isNotAsked: (rd: RemoteData<unknown, unknown>) => rd is NotAsked
+export declare const isNotAsked: (
+  rd: RemoteData<unknown, unknown>,
+) => rd is NotAsked;
 ```
 
 Added in v3.0.0
@@ -720,7 +799,9 @@ Added in v3.0.0
 **Signature**
 
 ```ts
-export declare const isSuccess: (rd: RemoteData<unknown, unknown>) => rd is Success<unknown>
+export declare const isSuccess: (
+  rd: RemoteData<unknown, unknown>,
+) => rd is Success<unknown>;
 ```
 
 Added in v3.0.0
@@ -732,7 +813,9 @@ Added in v3.0.0
 **Signature**
 
 ```ts
-export declare const elem: <A = unknown>(E: Eq<A>) => <E = unknown>(a: A, rda: RemoteData<E, A>) => boolean
+export declare const elem: <A = unknown>(
+  E: Eq<A>,
+) => <E = unknown>(a: A, rda: RemoteData<E, A>) => boolean;
 ```
 
 Added in v3.0.0
@@ -742,7 +825,9 @@ Added in v3.0.0
 **Signature**
 
 ```ts
-export declare const exists: <A = unknown>(predicate: Predicate<A>) => <E = unknown>(rda: RemoteData<E, A>) => boolean
+export declare const exists: <A = unknown>(
+  predicate: Predicate<A>,
+) => <E = unknown>(rda: RemoteData<E, A>) => boolean;
 ```
 
 Added in v3.0.0
