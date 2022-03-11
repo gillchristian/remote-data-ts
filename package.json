@@ -2,7 +2,7 @@
   "name": "remote-data-ts",
   "description": "Remote data type implemented in TS",
   "homepage": "https://gillchristian.github.io/remote-data-ts",
-  "version": "3.0.0",
+  "version": "3.0.1-0",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "sideEffects": false,
