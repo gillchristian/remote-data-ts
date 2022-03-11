@@ -33,7 +33,7 @@ export function getRemoteData<E, A>(
 
 describe('Functor', () => {
   it('satisfies the Functor laws', () =>
-    laws.functor(RD.remoteData)(
+    laws.functor(RD.Functor)(
       (arb) => getRemoteData(fc.string(), arb),
       (S) => RD.getEq(eqString, S),
     ));
@@ -41,7 +41,7 @@ describe('Functor', () => {
 
 describe('Apply', () => {
   it('satisfies the Apply laws', () =>
-    laws.apply(RD.remoteData)(
+    laws.apply(RD.Apply)(
       (arb) => getRemoteData(fc.string(), arb),
       (S) => RD.getEq(eqString, S),
     ));
@@ -49,7 +49,7 @@ describe('Apply', () => {
 
 describe('Applicative', () => {
   it('satisfies the Applicative laws', () =>
-    laws.applicative(RD.remoteData)(
+    laws.applicative(RD.Applicative)(
       (arb) => getRemoteData(fc.string(), arb),
       (S) => RD.getEq(eqString, S),
     ));
@@ -57,7 +57,7 @@ describe('Applicative', () => {
 
 describe('Monad', () => {
   it('satisfies the Monad laws', () =>
-    laws.monad(RD.remoteData)((S) => RD.getEq(eqString, S)));
+    laws.monad(RD.Monad)((S) => RD.getEq(eqString, S)));
 });
 
 describe('Eq', () => {
