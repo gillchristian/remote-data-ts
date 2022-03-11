@@ -340,7 +340,7 @@ export const reduce =
  */
 export const reduceRight =
   <E, A, B>(b: B, f: (a: A, b: B) => B) =>
-  (rda: RemoteData<E, A>) =>
+  (rda: RemoteData<E, A>): B =>
     pipe(
       rda,
       reduce(b, (b_, a_) => f(a_, b_)),
