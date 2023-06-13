@@ -4,7 +4,14 @@
   "homepage": "https://gillchristian.github.io/remote-data-ts",
   "version": "2.1.0",
   "main": "dist/index.js",
+  "module": "dist/_esm/index.js",
   "types": "dist/index.d.ts",
+  "exports": {
+    "types": "./dist/index.d.ts",
+    "node": "./dist/index.js",
+    "import": "./dist/_esm/index.js",
+    "require": "./dist/index.js"
+  },
   "sideEffects": false,
   "repository": {
     "type": "git",
@@ -22,7 +29,9 @@
     "fp-ts": "^2.11.8"
   },
   "scripts": {
-    "build": "tsc -p tsconfig.build.json",
+    "build:cjs": "tsc -p tsconfig.build.json",
+    "build:esm": "tsc -p tsconfig.build.esm.json",
+    "build": "yarn build:cjs && yarn build:esm",
     "watch": "tsc -w --noEmit",
     "prerelease": "yarn build",
     "fmt": "prettier  --write '**/*.{ts,json,md}'",
